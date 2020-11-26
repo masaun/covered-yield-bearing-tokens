@@ -1,8 +1,8 @@
-# Arbitrage between ETH and WBTC
+# Covered Yield Bearing Token
 
 ***
-## 【Introduction of Arbitrage between WBTC and ETH】
-- This is a solidity smart contract that allows a user to get a opportunity to execute automatic arbitrage between WBTC and ETH.
+## 【Introduction of Covered Yield Bearing Token】
+- This is a solidity smart contract that allows a user to ...
 
 &nbsp;
 
