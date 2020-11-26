@@ -10,7 +10,7 @@ module.exports = {
     },
     "Kovan": {
         "NexusMutual": {
-            "NXMToken": "0x2A10B9eC3E3f9aE8e7f3736bCd0392af1789ed9b"
+            NXMToken: [ '0x2A10B9eC3E3f9aE8e7f3736bCd0392af1789ed9b' ]
         },
     }
 }
