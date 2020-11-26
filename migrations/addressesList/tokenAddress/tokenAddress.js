@@ -9,8 +9,8 @@ module.exports = {
         "cEther": "0xbe839b6d93e3ea47effcca1f27841c917a8794f3"     /// cEther address on Ropsten（from Compound）
     },
     "Kovan": {
-        "": {
-            "": ""
+        "NexusMutual": {
+            NXMToken: [ '0x2A10B9eC3E3f9aE8e7f3736bCd0392af1789ed9b' ]
         },
     }
 }
