@@ -10,7 +10,11 @@ import { NFTForCover } from "./NFTForCover.sol";
  **/
 contract Distributor {
 
-    constructor() public {}
+    IERC20 public dai;
+
+    constructor(address _dai) public {
+        dai = IERC20(_dai);
+    }
 
 
     /***
@@ -24,7 +28,7 @@ contract Distributor {
         dai.transferFrom(msg.sender, address(this), daiAmount);
 
         /// [Step3]: Recieve an NFT as a return to the user representing the cover details.
-        NFTForCover nftForCover = NFTForCover();
+        NFTForCover nftForCover = new NFTForCover();
     }
 
 
