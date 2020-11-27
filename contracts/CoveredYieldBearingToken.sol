@@ -22,17 +22,19 @@ contract CoveredYieldBearingToken is ERC721Full {
      * @notice - Creation of a new fully non-fungible token (NFT) that is both yield bearing and covered
      **/
     function createCoveredYieldBearingToken(address to, string memory ipfsHash) public returns (uint _newAuthTokenId) {
-        /// [Step1]: Mint new NFT
+        /// [Step1]: Make a cover
+
+        /// [Step2]: Mint new NFT
         uint newCoveredYieldBearingTokenId = getNextCoveredYieldBearingTokenId();
         currentCoveredYieldBearingTokenId++;
         _mint(to, newCoveredYieldBearingTokenId);
         _setTokenURI(newCoveredYieldBearingTokenId, ipfsHash);  /// [Note]: ipfsHash that cover related metadata is included
 
-        /// [Step2]: Bearing yield with aDAI and cDAI
+        /// [Step3]: Bearing yield with aDAI and cDAI
         lendToCompound();
         lendToAave();
 
-        /// [Step3]: Add a cover
+        /// [Step4]: Add a cover
     }
 
 

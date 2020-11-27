@@ -11,6 +11,22 @@ contract Distributor {
 
     constructor() public {}
 
+
+    /***
+     * @notice - Distributor contracts take input from an end user
+     *         - a distributor contracts purchase cover on Nexus => return an NFT to the user representing the cover details.
+     **/
+    function purchaseCover() public returns (bool) {
+        /// [Step1]: Recieve input value from an end user
+
+
+        /// [Step2]: a distributor contracts purchase cover on Nexus
+
+
+        /// [Step3]: Recieve an NFT as a return to the user representing the cover details.
+    }
+
+
     /***
      * @notice - Claims can be submitted via the distributor contract by returning the NFT.
      *           (this creates a claim assessment item for Nexus Claims Assessors who then vote on claims)
@@ -23,7 +39,9 @@ contract Distributor {
     /***
      * @notice - Assuming the claim is paid the funds are transferred to the Distributor and can be redeemed by the end user.
      **/
-    function redeemClaimWithFund() internal returns (bool) {}
+    function redeemClaimWithFund() internal returns (bool) {
+        uint fundedAmount;
+    }
     
 
 
