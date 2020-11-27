@@ -9,22 +9,22 @@ import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 /***
  * @notice - This contract that ...
  **/
-contract NFTForCover is ERC721Full {
+contract CoverDetailRecordedNFT is ERC721Full {
     using SafeMath for uint;
 
-    uint8 public currentNFTForCoverId;
+    uint8 public currentCoverDetailRecordedNFTId;
 
-    constructor() public ERC721Full("Covered Yield Bearing Token", "CYB") {}
+    constructor() public ERC721Full("Cover Detail Recorded NFT", "CDR") {}
 
 
     /***
      * @notice - Mint a NFT for cover
      **/
-    function mintNFTForCover(address to, string memory ipfsHash) public returns (uint _newNFTForCoverId) {
-        uint newNFTForCoverId = getNextNFTForCoverId();
-        currentNFTForCoverId++;
-        _mint(to, newNFTForCoverId);
-        _setTokenURI(newNFTForCoverId, ipfsHash);  /// [Note]: ipfsHash that cover related metadata is included
+    function mintCoverDetailRecordedNFT(address to, string memory ipfsHash) public returns (uint _newCoverDetailRecordedNFTId) {
+        uint newCoverDetailRecordedNFTId = getNextCoverDetailRecordedNFTId();
+        currentCoverDetailRecordedNFTId++;
+        _mint(to, newCoverDetailRecordedNFTId);
+        _setTokenURI(newCoverDetailRecordedNFTId, ipfsHash);  /// [Note]: ipfsHash that cover related metadata is included
     }
 
 
@@ -44,8 +44,8 @@ contract NFTForCover is ERC721Full {
     ///------------------------------------------------------------
     /// Private functions
     ///------------------------------------------------------------
-    function getNextNFTForCoverId() private view returns (uint nextNFTForCoverId) {
-        return currentNFTForCoverId + 1;
+    function getNextCoverDetailRecordedNFTId() private view returns (uint nextCoverDetailRecordedNFTId) {
+        return currentCoverDetailRecordedNFTId + 1;
     }
 
 }

@@ -2,7 +2,7 @@ pragma solidity ^0.5.0;
 pragma experimental ABIEncoderV2;
 
 import { IERC20 } from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import { NFTForCover } from "./NFTForCover.sol";
+import { CoverDetailRecordedNFT } from "./CoverDetailRecordedNFT.sol";
 
 
 /***
@@ -28,7 +28,7 @@ contract Distributor {
         dai.transferFrom(msg.sender, address(this), daiAmount);
 
         /// [Step3]: Recieve an NFT as a return to the user representing the cover details.
-        NFTForCover nftForCover = new NFTForCover();
+        CoverDetailRecordedNFT coverDetailRecordedNFT = new CoverDetailRecordedNFT();
     }
 
 
