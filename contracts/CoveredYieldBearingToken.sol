@@ -17,11 +17,20 @@ contract CoveredYieldBearingToken is ERC721Full {
 
     constructor() public ERC721Full("Covered Yield Bearing Token", "CYB") {}
 
-    function mint(address to, string memory ipfsHash) public returns (uint _newAuthTokenId) {
+
+    /***
+     * @notice - Creation of a new fully fungible token that is both yield bearing and covered
+     **/
+    function createCoveredYieldBearingToken(address to, string memory ipfsHash) public returns (uint _newAuthTokenId) {
+        /// [Step1]: Mint new NFT
         uint newCoveredYieldBearingTokenId = getNextCoveredYieldBearingTokenId();
         currentCoveredYieldBearingTokenId++;
         _mint(to, newCoveredYieldBearingTokenId);
         _setTokenURI(newCoveredYieldBearingTokenId, ipfsHash);  /// [Note]: ipfsHash that cover related metadata is included
+
+        /// [Step2]: Yield bearing with aDAI and cDAI
+
+        /// [Step3]: Add a cover
     }
 
 
