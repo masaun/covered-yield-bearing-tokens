@@ -1,7 +1,11 @@
 pragma solidity ^0.5.0;
 pragma experimental ABIEncoderV2;
 
-import { IERC20 } from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
+import { Pool1 } from "./nexus-mutual/modules/capital/Pool1.sol";
+import { Quotation } from "./nexus-mutual/modules/cover/Quotation.sol";
+
 import { CoverDetailRecordedNFT } from "./CoverDetailRecordedNFT.sol";
 
 
@@ -11,9 +15,13 @@ import { CoverDetailRecordedNFT } from "./CoverDetailRecordedNFT.sol";
 contract Distributor is CoverDetailRecordedNFT {
 
     IERC20 public dai;
+    Pool1 public pool1;
+    Quotation public quotation;
 
-    constructor(address _dai) public CoverDetailRecordedNFT() {
+    constructor(address _dai, address _pool1, address _quotation) public CoverDetailRecordedNFT() {
         dai = IERC20(_dai);
+        pool1 = Pool1(_pool1);
+        quotation = Quotation(_quotation);
     }
 
 
@@ -24,9 +32,10 @@ contract Distributor is CoverDetailRecordedNFT {
      **/
     function purchaseCover(uint period, uint daiAmount, string memory coverDetail) public returns (bool) {
         /// [Step1]: Recieve input value from an end user
+        dai.transferFrom(msg.sender, address(this), daiAmount);
 
         /// [Step2]: a distributor contracts purchase cover on Nexus
-        dai.transferFrom(msg.sender, address(this), daiAmount);
+        pool1.makeCoverUsingCA(smartCAdd, coverCurr, coverDetails, coverPeriod, _v, _r, _s);
 
         /// [Step3]: Recieve an NFT as a return to the user representing the cover details.
         uint8 newCoverDetailRecordedNFTId = mintCoverDetailRecordedNFT(msg.sender, coverDetail);
