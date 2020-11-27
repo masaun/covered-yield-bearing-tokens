@@ -2,6 +2,7 @@ pragma solidity ^0.5.0;
 pragma experimental ABIEncoderV2;
 
 import { IERC20 } from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
+import { NFTForCover } from "./NFTForCover.sol";
 
 
 /***
@@ -16,14 +17,14 @@ contract Distributor {
      * @notice - Distributor contracts take input from an end user
      *         - a distributor contracts purchase cover on Nexus => return an NFT to the user representing the cover details.
      **/
-    function purchaseCover() public returns (bool) {
+    function purchaseCover(uint period, uint daiAmount) public returns (bool) {
         /// [Step1]: Recieve input value from an end user
 
-
         /// [Step2]: a distributor contracts purchase cover on Nexus
-
+        dai.transferFrom(msg.sender, address(this), daiAmount);
 
         /// [Step3]: Recieve an NFT as a return to the user representing the cover details.
+        NFTForCover nftForCover = NFTForCover();
     }
 
 
