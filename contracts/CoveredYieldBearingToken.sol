@@ -28,10 +28,25 @@ contract CoveredYieldBearingToken is ERC721Full {
         _mint(to, newCoveredYieldBearingTokenId);
         _setTokenURI(newCoveredYieldBearingTokenId, ipfsHash);  /// [Note]: ipfsHash that cover related metadata is included
 
-        /// [Step2]: Yield bearing with aDAI and cDAI
+        /// [Step2]: Bearing yield with aDAI and cDAI
+        lendToCompound();
+        lendToAave();
 
         /// [Step3]: Add a cover
     }
+
+
+    /***
+     * @notice - Lend DAI into compound (and recieve cDAI)
+     **/
+    function lendToCompound() public returns (bool) {}
+    
+
+    /***
+     * @notice - Lend DAI into AAVE (and recieve aDAI)
+     **/
+    function lendToAave() public returns (bool) {}
+
 
 
     ///------------------------------------------------------------
