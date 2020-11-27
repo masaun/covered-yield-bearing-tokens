@@ -16,16 +16,16 @@ $ npm install
 
 <br>
 
-### ② Compile & migrate contracts (on Ropsten testnet)
+### ② Compile & migrate contracts (on Kovan testnet)
 ```
-$ npm run migrate:ropsten
+$ npm run migrate:kovan
 ```
 
 <br>
 
 ### ③ Execute script (it's instead of testing)
 ```
-$ npm run script:arbitrage
+$ npm run script:kovan
 ```
 
 
