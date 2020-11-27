@@ -19,7 +19,7 @@ contract CoveredYieldBearingToken is ERC721Full {
 
 
     /***
-     * @notice - Creation of a new fully fungible token that is both yield bearing and covered
+     * @notice - Creation of a new fully non-fungible token (NFT) that is both yield bearing and covered
      **/
     function createCoveredYieldBearingToken(address to, string memory ipfsHash) public returns (uint _newAuthTokenId) {
         /// [Step1]: Mint new NFT
