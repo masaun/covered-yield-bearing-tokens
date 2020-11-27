@@ -8,11 +8,11 @@ import { CoverDetailRecordedNFT } from "./CoverDetailRecordedNFT.sol";
 /***
  * @notice - This contract that ...
  **/
-contract Distributor {
+contract Distributor is CoverDetailRecordedNFT {
 
     IERC20 public dai;
 
-    constructor(address _dai) public {
+    constructor(address _dai) public CoverDetailRecordedNFT() {
         dai = IERC20(_dai);
     }
 
@@ -20,15 +20,18 @@ contract Distributor {
     /***
      * @notice - Distributor contracts take input from an end user
      *         - a distributor contracts purchase cover on Nexus => return an NFT to the user representing the cover details.
+     * @notice - "coverDetail" is IPFSHash 
      **/
-    function purchaseCover(uint period, uint daiAmount) public returns (bool) {
+    function purchaseCover(uint period, uint daiAmount, string memory coverDetail) public returns (bool) {
         /// [Step1]: Recieve input value from an end user
 
         /// [Step2]: a distributor contracts purchase cover on Nexus
         dai.transferFrom(msg.sender, address(this), daiAmount);
 
         /// [Step3]: Recieve an NFT as a return to the user representing the cover details.
-        CoverDetailRecordedNFT coverDetailRecordedNFT = new CoverDetailRecordedNFT();
+        uint8 newCoverDetailRecordedNFTId = mintCoverDetailRecordedNFT(msg.sender, coverDetail);
+        //CoverDetailRecordedNFT coverDetailRecordedNFT = new CoverDetailRecordedNFT();
+
     }
 
 

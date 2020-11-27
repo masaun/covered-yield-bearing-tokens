@@ -20,11 +20,13 @@ contract CoverDetailRecordedNFT is ERC721Full {
     /***
      * @notice - Mint a NFT for cover
      **/
-    function mintCoverDetailRecordedNFT(address to, string memory ipfsHash) public returns (uint _newCoverDetailRecordedNFTId) {
+    function mintCoverDetailRecordedNFT(address to, string memory ipfsHash) public returns (uint8 _newCoverDetailRecordedNFTId) {
         uint8 newCoverDetailRecordedNFTId = getNextCoverDetailRecordedNFTId();
         currentCoverDetailRecordedNFTId++;
         _mint(to, uint256(newCoverDetailRecordedNFTId));
-        _setTokenURI(newCoverDetailRecordedNFTId, ipfsHash);  /// [Note]: ipfsHash that cover related metadata is included
+        _setTokenURI(uint256(newCoverDetailRecordedNFTId), ipfsHash);  /// [Note]: ipfsHash that cover related metadata is included
+
+        return newCoverDetailRecordedNFTId;
     }
 
 
