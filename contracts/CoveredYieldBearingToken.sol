@@ -68,6 +68,12 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20 {
     }
 
 
+
+
+    ///--------------------------------------------------------
+    /// Previous methos
+    ///--------------------------------------------------------
+
     /***
      * @notice - Creation of a new fully fungible token that is both yield bearing and covered
      * @notice - ipfsHash is a uploaded IPFS file that include a cover details
@@ -101,19 +107,19 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20 {
     ///--------------------------------------------------------
 
     // get TUSD balance of this contract
-    function balance() public view override returns (uint256) {
+    function balance() public view returns (uint256) {
         return tusd.balanceOf(address(this));
     }
 
     // get price of interest bearing token
-    function exchangeRate() public view override returns (uint256) {
+    function exchangeRate() public view returns (uint256) {
         // exchange rate = (TUSD balance + total borrowed) / supply
         totalBorrow.add(balance()).div(totalSupply());
     }
 
     // mint interest bearing TUSD
     // @param amount TUSD amount
-    function mint(uint256 amount) public override {
+    function mint(uint256 amount) public {
         require(tusd.transferFrom(msg.sender, address(this), amount), "insufficient TUSD");
         uint256 value = amount.div(exchangeRate());
         // amount of tokens based on total interest earned by pool
@@ -122,7 +128,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20 {
 
     // redeem pool tokens for TUSD
     // @param amount zToken amonut
-    function redeem(uint256 amount) public override {
+    function redeem(uint256 amount) public {
         require(balanceOf(msg.sender) >= amount, "not enough balance");
         require(balance().sub(amount) >= totalBorrow, "pool lacks liquidity");
         // calculate underlying value of pool tokens
@@ -134,7 +140,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20 {
     }
 
     // deposit LINK to use as collateral to borrow
-    function deposit(uint256 amount) public override {
+    function deposit(uint256 amount) public {
         require(link.transferFrom(msg.sender, address(this), amount), "insufficient LINK");
         User storage user = users[msg.sender];
         user.collateral.add(amount);
@@ -143,7 +149,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20 {
 
     // withdraw LINK used as collateral
     // could cause user to be undercollateralized
-    function withdraw(uint256 amount) public override {
+    function withdraw(uint256 amount) public {
         User storage user = users[msg.sender];
         require(user.collateral >= amount, "insufficient collateral");
         totalCollateral.sub(amount);
@@ -151,7 +157,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20 {
     }
 
     // borrow TUSD using LINK as collateral
-    function borrow(uint256 amount) public override {
+    function borrow(uint256 amount) public {
         User storage user = users[msg.sender];
         require(amount >= balance(), "not enough liquidity to borrow");
         require(calculateRatio(user.borrow.add(amount), user.collateral) > ratio, "too much borrow");
@@ -159,7 +165,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20 {
     }
 
     // repay TUSD debt
-    function repay(uint256 amount) public override {
+    function repay(uint256 amount) public {
         User storage user = users[msg.sender];
         require(user.borrow <= amount, "cannot repay more than borrowed");
         require(tusd.transferFrom(msg.sender, address(this), amount), "insufficient TUSD to repay");
@@ -182,7 +188,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20 {
     }
 
     // update oracle prices and total interest earned
-    function update() public override {
+    function update() public {
         // only update if at least one interval has passed
         if (lastUpdated.add(INTERVAL) <= block.timestamp) {
             // calculate time passed
@@ -210,7 +216,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20 {
     }
 
     // liquidate account ETH if below threshold
-    function liquidate(address account, uint256 amount) public override {
+    function liquidate(address account, uint256 amount) public {
         update();
         User memory user = users[account];
         require(user.borrow !=0, "account has not borrowed");
