@@ -61,7 +61,10 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     // store users of this smart contract
     mapping(address => User) users;
 
-    constructor(address _tusd, address _link, address _linkPriceFeed) public ERC20Detailed("Interest Bearing TUSD", "iTUSD", 18) {  /// [Note]: Create "Interest bearing TUSD" = "iTUSD"  (like aDAI of aToken in AAVE)
+    constructor(address _tusd, address _link, address _linkPriceFeed) 
+        public 
+        ERC20Detailed("Covered Yield Bearing Token", "CYB", 18) 
+    {
         tusd = IERC20(_tusd);  /// tUSD
         link = IERC20(_link);  /// LINK
         linkPriceFeed = AggregatorV3Interface(_linkPriceFeed);  /// Chainlink PriceFeed (LINK/USD)
