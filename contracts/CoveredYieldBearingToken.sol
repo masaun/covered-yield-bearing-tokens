@@ -3,7 +3,8 @@ pragma experimental ABIEncoderV2;
 
 
 /// [Note]: @openzeppelin/contracts v2.5.1
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import { ERC20Detailed } from "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
+import { ERC20Mintable } from "@openzeppelin/contracts/token/ERC20/ERC20Mintable.sol";
 import { IERC20 } from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
 
@@ -16,7 +17,7 @@ import { ICoveredYieldBearingToken } from "./interfaces/ICoveredYieldBearingToke
 /***
  * @notice - This contract that ...
  **/
-contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20 {
+contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, ERC20Mintable {
     using SafeMath for uint;
 
     /* contracts */    
@@ -60,7 +61,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20 {
     // store users of this smart contract
     mapping(address => User) users;
 
-    constructor(address _tusd, address _link, address _linkPriceFeed) public ERC20("Interest Bearing TUSD", "iTUSD") {  /// [Note]: Create "Interest bearing TUSD" = "iTUSD"  (like aDAI of aToken in AAVE)
+    constructor(address _tusd, address _link, address _linkPriceFeed) public ERC20Detailed("Interest Bearing TUSD", "iTUSD", 18) {  /// [Note]: Create "Interest bearing TUSD" = "iTUSD"  (like aDAI of aToken in AAVE)
         tusd = IERC20(_tusd);  /// tUSD
         link = IERC20(_link);  /// LINK
         linkPriceFeed = AggregatorV3Interface(_linkPriceFeed);  /// Chainlink PriceFeed (LINK/USD)
