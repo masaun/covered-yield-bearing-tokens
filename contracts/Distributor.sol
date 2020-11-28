@@ -31,7 +31,7 @@ contract Distributor is CoverDetailRecordedNFT {
      * @notice - "coverDetail" is IPFSHash 
      **/
     function purchaseCover(
-        uint daiAmount,             /// [Note]: This is payment fees for buying a cover
+        uint daiAmount,             /// [Note]: This is payment fees for buying a cover with DAI
         string memory coverDetail,  /// [Note]: This is ipfsHash that a cover detail is recorded
         address smartCAdd,
         bytes4 coverCurr,
@@ -41,7 +41,7 @@ contract Distributor is CoverDetailRecordedNFT {
         bytes32 _r,
         bytes32 _s
     ) public returns (bool) {
-        /// [Step1]: Recieve input value from an end user
+        /// [Step1]: Recieve payment fees (DAI) from input value of an end user
         dai.transferFrom(msg.sender, address(this), daiAmount);
 
         /// [Step2]: a distributor contracts purchase cover on Nexus
