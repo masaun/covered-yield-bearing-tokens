@@ -5,9 +5,12 @@ pragma experimental ABIEncoderV2;
 /// [Note]: @openzeppelin/contracts v2.5.1
 import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { IERC20 } from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
-import { AggregatorV3Interface } from "./chainlink/AggregatorV3Interface.sol";
-import { ILendingPool } from "./interfaces/ICoveredYieldBearingToken.sol";
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+
+/// Chainlink for solidity v0.5
+import { AggregatorV3Interface } from "./chainlink/AggregatorV3Interface.sol";
+
+import { ICoveredYieldBearingToken } from "./interfaces/ICoveredYieldBearingToken.sol";
 
 
 /***
@@ -247,7 +250,6 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20 {
     function calculateRatio(uint256 borrow, uint256 collateral) public returns (uint256) {
         return borrow.div(collateral.mul(linkPrice));
     }
-}
 
 
 
