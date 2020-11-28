@@ -18,7 +18,7 @@ contract Distributor is CoverDetailRecordedNFT {
     Pool1 public pool1;
     Quotation public quotation;
 
-    constructor(address _dai, address _pool1, address _quotation) public CoverDetailRecordedNFT() {
+    constructor(address _dai, address payable _pool1, address _quotation) public CoverDetailRecordedNFT() {
         dai = IERC20(_dai);
         pool1 = Pool1(_pool1);
         quotation = Quotation(_quotation);
@@ -30,7 +30,17 @@ contract Distributor is CoverDetailRecordedNFT {
      *         - a distributor contracts purchase cover on Nexus => return an NFT to the user representing the cover details.
      * @notice - "coverDetail" is IPFSHash 
      **/
-    function purchaseCover(uint period, uint daiAmount, string memory coverDetail) public returns (bool) {
+    function purchaseCover(
+        uint daiAmount,             /// [Note]: This is payment fees for buying a cover
+        string memory coverDetail,  /// [Note]: This is ipfsHash that a cover detail is recorded
+        address smartCAdd,
+        bytes4 coverCurr,
+        uint[] memory coverDetails,
+        uint16 coverPeriod,
+        uint8 _v,
+        bytes32 _r,
+        bytes32 _s
+    ) public returns (bool) {
         /// [Step1]: Recieve input value from an end user
         dai.transferFrom(msg.sender, address(this), daiAmount);
 
