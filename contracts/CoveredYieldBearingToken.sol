@@ -26,11 +26,10 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     using SafeMath for uint;
 
     /* contracts */    
-    IERC20 tusd; // tusd stablecoin
+    IERC20 dai;  // DAI stablecoin
     IERC20 link; // chainlink coin
     AggregatorV3Interface internal linkPriceFeed; // chainlink aggregator
 
-    IERC20 dai;
     ILendingPool public lendingPool;
     ILendingPoolCore public lendingPoolCore;
     ILendingPoolAddressesProvider public lendingPoolAddressesProvider;
@@ -41,7 +40,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     uint256 ratio;          // collateralization ratio
     uint256 index;          // tracks interest owed by borrowers
     uint256 linkPrice;      // last price of ETH
-    uint256 totalBorrow;    // total TUSD borrowed
+    uint256 totalBorrow;    // total DAI borrowed
     uint256 totalCollateral;// total LINK collateral
     uint256 lastUpdated;    // time last updated
     
@@ -60,7 +59,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     }
 
     struct User {
-        // TUSD amount borrowed
+        // DAI amount borrowed
         uint256 borrow;
         // ETH collateral amount
         uint256 collateral;
@@ -72,11 +71,11 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     // store users of this smart contract
     mapping(address => User) users;
 
-    constructor(address _dai, address _tusd, address _link, address _linkPriceFeed, address _lendingPool, address _lendingPoolCore, address _lendingPoolAddressesProvider, address _aDai) 
+    constructor(address _dai, address _link, address _linkPriceFeed, address _lendingPool, address _lendingPoolCore, address _lendingPoolAddressesProvider, address _aDai) 
         public 
         ERC20Detailed("Covered Yield Bearing Token", "CYB", 18) 
     {
-        tusd = IERC20(_tusd);  /// tUSD
+        dai = IERC20(_dai);    /// DAI
         link = IERC20(_link);  /// LINK
         linkPriceFeed = AggregatorV3Interface(_linkPriceFeed);  /// Chainlink PriceFeed (LINK/USD)
         totalBorrow = 0;
@@ -85,7 +84,6 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         ratio = 15000000000000000000;   // 1.5
 
         /// AAVE
-        dai = IERC20(_dai);
         lendingPool = ILendingPool(_lendingPool);
         lendingPoolCore = ILendingPoolCore(_lendingPoolCore);
         lendingPoolAddressesProvider = ILendingPoolAddressesProvider(_lendingPoolAddressesProvider);
@@ -140,27 +138,27 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     /// Interest bearing token with AAVE
     ///--------------------------------------------------------
 
-    // get TUSD balance of this contract
+    // get DAI balance of this contract
     function balance() public view returns (uint256) {
-        return tusd.balanceOf(address(this));
+        return dai.balanceOf(address(this));
     }
 
     // get price of interest bearing token
     function exchangeRate() public view returns (uint256) {
-        // exchange rate = (TUSD balance + total borrowed) / supply
+        // exchange rate = (DAI balance + total borrowed) / supply
         totalBorrow.add(balance()).div(totalSupply());
     }
 
-    // mint interest bearing TUSD
-    // @param amount TUSD amount
+    // mint interest bearing DAI
+    // @param amount DAI amount
     function mint(uint256 amount) public {
-        require(tusd.transferFrom(msg.sender, address(this), amount), "insufficient TUSD");
+        require(dai.transferFrom(msg.sender, address(this), amount), "insufficient DAI");
         uint256 value = amount.div(exchangeRate());
         // amount of tokens based on total interest earned by pool
         _mint(msg.sender, value);
     }
 
-    // redeem pool tokens for TUSD
+    // redeem pool tokens for DAI
     // @param amount zToken amonut
     function redeem(uint256 amount) public {
         require(balanceOf(msg.sender) >= amount, "not enough balance");
@@ -169,8 +167,8 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         uint256 value = amount.mul(exchangeRate());
         // burn pool tokens
         _burn(msg.sender, amount);
-        // transfer TUSD to sender
-        tusd.transfer(msg.sender, value);
+        // transfer DAI to sender
+        dai.transfer(msg.sender, value);
     }
 
     // deposit LINK to use as collateral to borrow
@@ -190,7 +188,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         user.collateral.sub(amount);
     }
 
-    // borrow TUSD using LINK as collateral
+    // borrow DAI using LINK as collateral
     function borrow(uint256 amount) public {
         User storage user = users[msg.sender];
         require(amount >= balance(), "not enough liquidity to borrow");
@@ -198,11 +196,11 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         _updateAccount(msg.sender);
     }
 
-    // repay TUSD debt
+    // repay DAI debt
     function repay(uint256 amount) public {
         User storage user = users[msg.sender];
         require(user.borrow <= amount, "cannot repay more than borrowed");
-        require(tusd.transferFrom(msg.sender, address(this), amount), "insufficient TUSD to repay");
+        require(dai.transferFrom(msg.sender, address(this), amount), "insufficient DAI to repay");
         user.borrow = user.borrow.sub(amount);
         _updateAccount(msg.sender);
     }
