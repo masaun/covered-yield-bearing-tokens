@@ -109,8 +109,12 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         lendToAave(_reserve, _amount, _referralCode);
 
         /// Mint CYB (Covered Yield Bearing Token)
-        uint aDaiBalance = aDaiBalance();
-        mint(aDaiBalance);        
+        uint aDAIBalance = aDaiBalance();
+        mint(aDAIBalance);   
+
+        /// Transfer CYB (Covered Yield Bearing Token) into a user
+        uint CYBBalance = CybBalance();
+        transfer(msg.sender, CYBBalance);
     }
 
 
@@ -151,6 +155,11 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     // get aDAI balance of this contract
     function aDaiBalance() public view returns (uint256) {
         return aDai.balanceOf(address(this));
+    }
+
+    // get CYB (Covered Yield Bearing Token) balance of this contract
+    function CybBalance() public view returns (uint256) {
+        return balanceOf(address(this));
     }
 
     // get price of interest bearing token
