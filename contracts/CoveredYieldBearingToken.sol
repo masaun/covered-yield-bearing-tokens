@@ -107,6 +107,10 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
 
         /// Bearing yield with aDAI        
         lendToAave(_reserve, _amount, _referralCode);
+
+        /// Mint CYB (Covered Yield Bearing Token)
+        uint aDaiBalance = aDaiBalance();
+        mint(aDaiBalance);        
     }
 
 
@@ -130,7 +134,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         /// Approve LendingPool contract to transfer DAI into the LendingPool
         dai.approve(lendingPoolAddressesProvider.getLendingPoolCore(), _amount);
 
-        /// Deposit DAI
+        /// Deposit DAI (after that, this contract receive aDAI from lendingPool)
         lendingPool.deposit(_reserve, _amount, _referralCode);
     }
 
@@ -144,13 +148,26 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         return dai.balanceOf(address(this));
     }
 
+    // get aDAI balance of this contract
+    function aDaiBalance() public view returns (uint256) {
+        return aDai.balanceOf(address(this));
+    }
+
+    // get price of interest bearing token
+    function exchangeRate() public view returns (uint256) {
+        /// exchange rate = (TUSD balance + total borrowed) / supply
+        totalBorrow.add(balance()).div(totalSupply());
+    }
+
     // mint the covered yield bearing token 
     // @param amount DAI amount
     function mint(uint256 amount) public {
         require(dai.transferFrom(msg.sender, address(this), amount), "insufficient DAI");
         uint256 value = amount.div(exchangeRate());
-        // amount of tokens based on total interest earned by pool
-        _mint(msg.sender, value);
+
+        /// amount of tokens based on total interest earned by pool
+        _mint(address(this), value);
+        //_mint(msg.sender, value);
     }
 
     // redeem pool tokens for DAI
