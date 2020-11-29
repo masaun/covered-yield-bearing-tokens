@@ -1,12 +1,17 @@
 pragma solidity ^0.5.0;
 pragma experimental ABIEncoderV2;
 
-
 /// [Note]: @openzeppelin/contracts v2.5.1
 import { ERC20Detailed } from "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import { ERC20Mintable } from "@openzeppelin/contracts/token/ERC20/ERC20Mintable.sol";
 import { IERC20 } from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
 import { SafeMath } from "@openzeppelin/contracts/math/SafeMath.sol";
+
+/// AAVE
+import { ILendingPool } from "./aave/interfaces/ILendingPool.sol";
+import { ILendingPoolCore } from "./aave/interfaces/ILendingPoolCore.sol";
+import { ILendingPoolAddressesProvider } from "./aave/interfaces/ILendingPoolAddressesProvider.sol";
+import { IAToken } from"./aave/interfaces/IAToken.sol";
 
 /// Chainlink for solidity v0.5
 import { AggregatorV3Interface } from "./chainlink/AggregatorV3Interface.sol";
@@ -24,6 +29,12 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     IERC20 tusd; // tusd stablecoin
     IERC20 link; // chainlink coin
     AggregatorV3Interface internal linkPriceFeed; // chainlink aggregator
+
+    IERC20 dai;
+    ILendingPool public lendingPool;
+    ILendingPoolCore public lendingPoolCore;
+    ILendingPoolAddressesProvider public lendingPoolAddressesProvider;
+    IAToken public aDai;
     
     /* variables */
     uint256 rate;           // interest rate
@@ -61,7 +72,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     // store users of this smart contract
     mapping(address => User) users;
 
-    constructor(address _tusd, address _link, address _linkPriceFeed) 
+    constructor(address _dai, address _tusd, address _link, address _linkPriceFeed, address _lendingPool, address _lendingPoolCore, address _lendingPoolAddressesProvider, address _aDai) 
         public 
         ERC20Detailed("Covered Yield Bearing Token", "CYB", 18) 
     {
@@ -72,6 +83,13 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         totalCollateral = 0;
         rate = 100000000000000000;      // 0.1
         ratio = 15000000000000000000;   // 1.5
+
+        /// AAVE
+        dai = IERC20(_dai);
+        lendingPool = ILendingPool(_lendingPool);
+        lendingPoolCore = ILendingPoolCore(_lendingPoolCore);
+        lendingPoolAddressesProvider = ILendingPoolAddressesProvider(_lendingPoolAddressesProvider);
+        aDai = IAToken(_aDai);
     }
 
 
@@ -85,12 +103,12 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
      * @notice - Creation of a new fully fungible token that is both yield bearing and covered
      * @notice - ipfsHash is a uploaded IPFS file that include a cover details
      **/
-    function createCoveredYieldBearingToken() public returns (bool) {
+    function createCoveredYieldBearingToken(address _reserve, uint256 _amount, uint16 _referralCode) public returns (bool) {
         /// Bearing yield with cDAI
         lendToCompound();
 
         /// Bearing yield with aDAI        
-        lendToAave();
+        lendToAave(_reserve, _amount, _referralCode);
     }
 
 
@@ -103,7 +121,16 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     /***
      * @notice - Lend DAI into AAVE (and recieve aDAI)
      **/
-    function lendToAave() public returns (bool) {}
+    function lendToAave(address _reserve, uint256 _amount, uint16 _referralCode) public returns (bool) {
+        /// Transfer from wallet address
+        dai.transferFrom(msg.sender, address(this), _amount);
+
+        /// Approve LendingPool contract to move your DAI
+        dai.approve(lendingPoolAddressesProvider.getLendingPoolCore(), _amount);
+
+        /// Deposit DAI
+        lendingPool.deposit(_reserve, _amount, _referralCode);
+    }
 
 
 
