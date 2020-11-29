@@ -162,12 +162,6 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         return balanceOf(address(this));
     }
 
-    // get price of interest bearing token
-    function exchangeRate() public view returns (uint256) {
-        /// exchange rate = (TUSD balance + total borrowed) / supply
-        totalBorrow.add(balance()).div(totalSupply());
-    }
-
     // mint the covered yield bearing token (CYB)
     // @param amount aDAI amount
     function mint(uint256 aDAIAmount) public {
@@ -175,37 +169,19 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     }
 
     // redeem pool tokens for DAI
-    // @param amount zToken amonut
-    function redeem(uint256 amount) public {
-        require(balanceOf(msg.sender) >= amount, "not enough balance");
-        require(balance().sub(amount) >= totalBorrow, "pool lacks liquidity");
-        // calculate underlying value of pool tokens
+    // @param CYB (Covered Yield Bearing Token) amonut
+    function redeem(uint256 CYBAmount) public {
+        require(balanceOf(msg.sender) >= CYBAmount, "Not enough CYB (Covered Yield Bearing Token) amount balance");
+        require(balance().sub(CYBAmount) >= aDaiBalance(), "Pool lacks liquidity");
+
+        /// calculate underlying value of pool tokens
         uint256 value = amount.mul(exchangeRate());
-        // burn pool tokens
+        
+        /// burn pool tokens
         _burn(msg.sender, amount);
-        // transfer DAI to sender
+        
+        /// transfer DAI to sender
         dai.transfer(msg.sender, value);
-    }
-
-    // deposit LINK to use as collateral to borrow
-    function deposit(uint256 amount) public {
-        require(link.transferFrom(msg.sender, address(this), amount), "insufficient LINK");
-        User storage user = users[msg.sender];
-        user.collateral.add(amount);
-        totalCollateral.add(amount);
-    }
-
-    // withdraw LINK used as collateral
-    // could cause user to be undercollateralized
-    function withdraw(uint256 amount) public {
-        User storage user = users[msg.sender];
-        require(user.collateral >= amount, "insufficient collateral");
-        totalCollateral.sub(amount);
-        user.collateral.sub(amount);
-    }
-
-    function _updateAccount(address account) internal {
-        // TODO
     }
 
 
