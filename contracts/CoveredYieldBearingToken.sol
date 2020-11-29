@@ -144,13 +144,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         return dai.balanceOf(address(this));
     }
 
-    // get price of interest bearing token
-    function exchangeRate() public view returns (uint256) {
-        // exchange rate = (DAI balance + total borrowed) / supply
-        totalBorrow.add(balance()).div(totalSupply());
-    }
-
-    // mint interest bearing DAI
+    // mint the covered yield bearing token 
     // @param amount DAI amount
     function mint(uint256 amount) public {
         require(dai.transferFrom(msg.sender, address(this), amount), "insufficient DAI");
@@ -189,99 +183,9 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         user.collateral.sub(amount);
     }
 
-    // borrow DAI using LINK as collateral
-    function borrow(uint256 amount) public {
-        User storage user = users[msg.sender];
-        require(amount >= balance(), "not enough liquidity to borrow");
-        require(calculateRatio(user.borrow.add(amount), user.collateral) > ratio, "too much borrow");
-        _updateAccount(msg.sender);
-    }
-
-    // repay DAI debt
-    function repay(uint256 amount) public {
-        User storage user = users[msg.sender];
-        require(user.borrow <= amount, "cannot repay more than borrowed");
-        require(dai.transferFrom(msg.sender, address(this), amount), "insufficient DAI to repay");
-        user.borrow = user.borrow.sub(amount);
-        _updateAccount(msg.sender);
-    }
-
-    function _debt(address account) internal view returns (uint256) {
-        User storage user = users[account];
-    }
-
-    // public view to see amount owed
-    function debt(address account) public view returns (uint256) {
-        User storage user = users[msg.sender];
-        return _debt(account);
-    }
-
     function _updateAccount(address account) internal {
         // TODO
     }
-
-    // update oracle prices and total interest earned
-    function update() public {
-        // only update if at least one interval has passed
-        if (lastUpdated.add(INTERVAL) <= block.timestamp) {
-            // calculate time passed
-            uint256 passed = block.timestamp.sub(lastUpdated);
-            // calculate intervals passed since last update
-            uint256 time = passed.div(INTERVAL);
-
-            // calculate period interest = 1 + r * t
-            uint256 period = rate.mul(
-                time.div(TOTAL_INTERVALS)
-                .mul(rate)
-                .add(1)
-            );
-            // update to current timestamp
-            lastUpdated = block.timestamp;
-
-            // update index
-            index = index.mul(period);
-
-            // update total borrow
-            totalBorrow = totalBorrow.mul(period);
-
-            updatePrice();
-        }
-    }
-
-    // liquidate account ETH if below threshold
-    function liquidate(address account, uint256 amount) public {
-        update();
-        User memory user = users[account];
-        require(user.borrow !=0, "account has not borrowed");
-        require(calculateRatio(user.borrow, user.collateral) < ratio, "account not undercollateralized");
-        require(amount <= user.collateral, "amount too high to liquidate");
-    }
-
-    // fetch eth price from chainlink
-    function fetchlinkPrice() public view returns (int256) {
-        (
-            uint80 roundID, 
-            int price,
-            uint startedAt,
-            uint timeStamp,
-            uint80 answeredInRound
-        ) = linkPriceFeed.latestRoundData();
-        // If the round is not complete yet, timestamp is 0
-        require(timeStamp > 0, "Round not complete");
-        return price;
-    }
-
-    function updatePrice() public {
-        // cast to uint256 * add 10 decimals of precision
-        linkPrice = uint256(fetchlinkPrice()).mul(10**10);
-    }
-
-    // calculate collateralization ratio
-    function calculateRatio(uint256 borrow, uint256 collateral) public returns (uint256) {
-        return borrow.div(collateral.mul(linkPrice));
-    }
-
-
 
 
 
