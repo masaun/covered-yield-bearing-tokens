@@ -94,7 +94,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
 
 
     ///--------------------------------------------------------
-    /// Previous methos
+    /// Main method
     ///--------------------------------------------------------
 
     /***
@@ -110,6 +110,10 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     }
 
 
+    ///--------------------------------------------------------
+    /// Lending pool related method
+    ///--------------------------------------------------------
+
     /***
      * @notice - Lend DAI into compound (and recieve cDAI)
      **/
@@ -117,21 +121,18 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     
 
     /***
-     * @notice - Lend DAI into AAVE (and recieve aDAI)
+     * @notice - Lend DAI into AAVE's lending pool (and recieve aDAI)
      **/
     function lendToAave(address _reserve, uint256 _amount, uint16 _referralCode) public returns (bool) {
-        /// Transfer from wallet address
+        /// Transfer from wallet address to this contract
         dai.transferFrom(msg.sender, address(this), _amount);
 
-        /// Approve LendingPool contract to move your DAI
+        /// Approve LendingPool contract to transfer DAI into the LendingPool
         dai.approve(lendingPoolAddressesProvider.getLendingPoolCore(), _amount);
 
         /// Deposit DAI
         lendingPool.deposit(_reserve, _amount, _referralCode);
     }
-
-
-
 
 
     ///--------------------------------------------------------
