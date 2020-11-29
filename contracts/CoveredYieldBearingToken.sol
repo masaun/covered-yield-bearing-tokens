@@ -168,15 +168,10 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         totalBorrow.add(balance()).div(totalSupply());
     }
 
-    // mint the covered yield bearing token 
-    // @param amount DAI amount
-    function mint(uint256 amount) public {
-        require(dai.transferFrom(msg.sender, address(this), amount), "insufficient DAI");
-        uint256 value = amount.div(exchangeRate());
-
-        /// amount of tokens based on total interest earned by pool
-        _mint(address(this), value);
-        //_mint(msg.sender, value);
+    // mint the covered yield bearing token (CYB)
+    // @param amount aDAI amount
+    function mint(uint256 aDAIAmount) public {
+        _mint(address(this), aDAIAmount);
     }
 
     // redeem pool tokens for DAI
