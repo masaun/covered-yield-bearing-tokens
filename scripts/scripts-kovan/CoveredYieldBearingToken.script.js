@@ -20,6 +20,13 @@ coveredYieldBearingTokenABI = CoveredYieldBearingToken.abi;
 coveredYieldBearingTokenAddr = CoveredYieldBearingToken["networks"]["42"]["address"];    /// Deployed address on Kovan
 coveredYieldBearingToken = new web3.eth.Contract(coveredYieldBearingTokenABI, coveredYieldBearingTokenAddr);
 
+let IERC20 = {};
+IERC20 = require("../../build/contracts/IERC20.json");
+daiABI = IERC20.abi;
+daiAddr = tokenAddressList["Kovan"]["Aave"]["DAIaave"];    /// Deployed address on Kovan
+dai = new web3.eth.Contract(daiABI, daiAddr);
+
+
 
 /***
  * @notice - Execute all methods
@@ -37,8 +44,14 @@ async function lendToAave() {
     const _reserve = tokenAddressList["Kovan"]["Aave"]["DAIaave"];
     const _amount = web3.utils.toWei('10', 'ether');  /// 10 DAI
     const _referralCode = 0;
-    let inputData1 = await coveredYieldBearingToken.methods.lendToAave(_reserve, _amount, _referralCode).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, coveredYieldBearingTokenAddr, inputData1);
+
+    /// Approve
+    let inputData1 = await dai.methods.approve(coveredYieldBearingTokenAddr, _amount).encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, daiAddr, inputData1);
+
+    /// Execution
+    let inputData2 = await coveredYieldBearingToken.methods.lendToAave(_reserve, _amount, _referralCode).encodeABI();
+    let transaction2 = await sendTransaction(walletAddress1, privateKey1, coveredYieldBearingTokenAddr, inputData2);
 }
 
 /*** 
@@ -49,8 +62,14 @@ async function createCoveredYieldBearingToken() {
     const _reserve = tokenAddressList["Kovan"]["Aave"]["DAIaave"];
     const _amount = web3.utils.toWei('10', 'ether');  /// 10 DAI
     const _referralCode = 0;
-    let inputData1 = await coveredYieldBearingToken.methods.createCoveredYieldBearingToken(userAddress, _reserve, _amount, _referralCode).encodeABI();
-    let transaction1 = await sendTransaction(walletAddress1, privateKey1, coveredYieldBearingTokenAddr, inputData1);
+
+    /// Approve
+    let inputData1 = await dai.methods.approve(coveredYieldBearingTokenAddr, _amount).encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, daiAddr, inputData1);
+
+    /// Execution
+    let inputData2 = await coveredYieldBearingToken.methods.createCoveredYieldBearingToken(userAddress, _reserve, _amount, _referralCode).encodeABI();
+    let transaction2 = await sendTransaction(walletAddress1, privateKey1, coveredYieldBearingTokenAddr, inputData2);
 }
 
 
