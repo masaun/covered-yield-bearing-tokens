@@ -2,7 +2,7 @@ require('dotenv').config();
 
 const Tx = require('ethereumjs-tx').Transaction;
 const Web3 = require('web3');
-const provider = new Web3.providers.HttpProvider(`https://ropsten.infura.io/v3/${ process.env.INFURA_KEY }`);
+const provider = new Web3.providers.HttpProvider(`https://kovan.infura.io/v3/${ process.env.INFURA_KEY }`);
 const web3 = new Web3(provider);
 
 /* Wallet */
@@ -17,25 +17,28 @@ let tokenAddressList = require('../addressesList/tokenAddress/tokenAddress.js');
 let CoveredYieldBearingToken = {};
 CoveredYieldBearingToken = require("../../build/contracts/CoveredYieldBearingToken.json");
 coveredYieldBearingTokenABI = CoveredYieldBearingToken.abi;
-coveredYieldBearingTokenAddr = CoveredYieldBearingToken["networks"]["3"]["address"];    /// Deployed address on Ropsten
+coveredYieldBearingTokenAddr = CoveredYieldBearingToken["networks"]["42"]["address"];    /// Deployed address on Kovan
 coveredYieldBearingToken = new web3.eth.Contract(coveredYieldBearingTokenABI, coveredYieldBearingTokenAddr);
-
 
 
 /***
  * @notice - Execute all methods
  **/
 async function main() {
-    await something();
+    await createCoveredYieldBearingToken();
 }
 main();
 
 
 /*** 
- * @dev - Send executeArbitrageByBuying()
+ * @dev - Send createCoveredYieldBearingToken()
  **/
-async function something() {
-    let inputData1 = await coveredYieldBearingToken.methods.something().encodeABI();
+async function createCoveredYieldBearingToken() {
+    const userAddress = walletAddress1;
+    const _reserve = tokenAddressList["Kovan"]["Aave"]["DAIaave"];
+    const _amount = web3.utils.toWei('10', 'ether');  /// 10 DAI
+    const _referralCode = 0;
+    let inputData1 = await coveredYieldBearingToken.methods.createCoveredYieldBearingToken(userAddress, _reserve, _amount, _referralCode).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, coveredYieldBearingTokenAddr, inputData1);
 }
 
@@ -64,7 +67,7 @@ async function sendTransaction(walletAddress, privateKey, contractAddress, input
 
         /// Sign the transaction
         privateKey = Buffer.from(privateKey, 'hex');
-        let tx = new Tx(txObject, { 'chain': 'ropsten' });  /// Chain ID = Ropsten
+        let tx = new Tx(txObject, { 'chain': 'kovan' });  /// Chain ID = Kovan
         tx.sign(privateKey);
 
         const serializedTx = tx.serialize();
