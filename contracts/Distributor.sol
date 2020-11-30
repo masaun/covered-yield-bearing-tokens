@@ -11,7 +11,7 @@ import { CoverDetailRecordedNFT } from "./CoverDetailRecordedNFT.sol";
 
 
 /***
- * @notice - This contract that ...
+ * @notice - Distributor contracts take input from an end user, then purchase cover on Nexus and return an NFT to the user representing the cover details.
  **/
 contract Distributor is CoverDetailRecordedNFT {
 
@@ -22,7 +22,10 @@ contract Distributor is CoverDetailRecordedNFT {
 
     address DAI_ADDRESS;
 
-    constructor(address _dai, address payable _pool1, address _quotation, address _coveredYieldBearingToken) public CoverDetailRecordedNFT() {
+    constructor(address _dai, address payable _pool1, address _quotation, address _coveredYieldBearingToken) 
+        public 
+        CoverDetailRecordedNFT() 
+    {
         dai = IERC20(_dai);
         pool1 = Pool1(_pool1);
         quotation = Quotation(_quotation);
@@ -69,8 +72,12 @@ contract Distributor is CoverDetailRecordedNFT {
      * @notice - Claims can be submitted via the distributor contract by returning the NFT.
      *           (this creates a claim assessment item for Nexus Claims Assessors who then vote on claims)
      **/
-    function claim() public returns (bool) {
+    function submitClaim(uint8 coverDetailRecordedNFTId) public returns (bool) {
+        /// [Step1]: Redeem a NFT (that are proof of cover) with fund 
         redeemClaimWithFund();
+
+        /// [Step2]: Burn a NFT that are proof of cover
+        _burn(uint256(coverDetailRecordedNFTId));
     }
 
 
