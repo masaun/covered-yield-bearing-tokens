@@ -13,13 +13,11 @@ import { ILendingPoolCore } from "./aave/interfaces/ILendingPoolCore.sol";
 import { ILendingPoolAddressesProvider } from "./aave/interfaces/ILendingPoolAddressesProvider.sol";
 import { IAToken } from"./aave/interfaces/IAToken.sol";
 
-import { ICoveredYieldBearingToken } from "./interfaces/ICoveredYieldBearingToken.sol";
-
 
 /***
  * @notice - This contract that ...
  **/
-contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, ERC20Mintable {
+contract CoveredYieldBearingToken is ERC20Detailed, ERC20Mintable {
     using SafeMath for uint;
 
     IERC20 dai;  // DAI stablecoin
