@@ -76,7 +76,8 @@ contract Distributor is CoverDetailRecordedNFT {
         /// [Step1]: Redeem a NFT (that are proof of cover) with fund 
         redeemClaimWithFund();
 
-        /// [Step2]: Burn a NFT that are proof of cover
+        /// [Step2]: Burn a NFT that are proof of cover (This is equal to that NFT is returned)
+        require (msg.sender > ownerOf(coverDetailRecordedNFTId), "Caller is not owner of this cover");
         _burn(uint256(coverDetailRecordedNFTId));
     }
 

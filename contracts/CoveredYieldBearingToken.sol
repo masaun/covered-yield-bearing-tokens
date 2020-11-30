@@ -13,9 +13,6 @@ import { ILendingPoolCore } from "./aave/interfaces/ILendingPoolCore.sol";
 import { ILendingPoolAddressesProvider } from "./aave/interfaces/ILendingPoolAddressesProvider.sol";
 import { IAToken } from"./aave/interfaces/IAToken.sol";
 
-/// Chainlink for solidity v0.5
-import { AggregatorV3Interface } from "./chainlink/AggregatorV3Interface.sol";
-
 import { ICoveredYieldBearingToken } from "./interfaces/ICoveredYieldBearingToken.sol";
 
 
