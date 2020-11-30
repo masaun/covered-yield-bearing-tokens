@@ -11,7 +11,7 @@ import { CoverDetailRecordedNFT } from "./CoverDetailRecordedNFT.sol";
 
 
 /***
- * @notice - This contract that ...
+ * @notice - Distributor contracts take input from an end user, then purchase cover on Nexus and return an NFT to the user representing the cover details.
  **/
 contract Distributor is CoverDetailRecordedNFT {
 
@@ -22,7 +22,10 @@ contract Distributor is CoverDetailRecordedNFT {
 
     address DAI_ADDRESS;
 
-    constructor(address _dai, address payable _pool1, address _quotation, address _coveredYieldBearingToken) public CoverDetailRecordedNFT() {
+    constructor(address _dai, address payable _pool1, address _quotation, address _coveredYieldBearingToken) 
+        public 
+        CoverDetailRecordedNFT() 
+    {
         dai = IERC20(_dai);
         pool1 = Pool1(_pool1);
         quotation = Quotation(_quotation);
@@ -34,7 +37,8 @@ contract Distributor is CoverDetailRecordedNFT {
 
     /***
      * @notice - Distributor contracts take input from an end user
-     *         - a distributor contracts purchase cover on Nexus => return an NFT to the user representing the cover details.
+     *         - a distributor contracts purchase cover on Nexus => return an NFT to the user representing the cover details.  
+     * @notice - Creation of a new fully fungible token that is both yield bearing and covered
      * @notice - "coverDetail" is IPFSHash 
      **/
     function purchaseCover(
@@ -59,7 +63,7 @@ contract Distributor is CoverDetailRecordedNFT {
         //CoverDetailRecordedNFT coverDetailRecordedNFT = new CoverDetailRecordedNFT();
 
         /// [Step4]: Generate CYB (covered yield bearing token) and transfer them into a user
-        coveredYieldBearingToken.createCoveredYieldBearingToken(DAI_ADDRESS, daiAmount, 0);
+        coveredYieldBearingToken.createCoveredYieldBearingToken(msg.sender, DAI_ADDRESS, daiAmount, 0);
         uint CYBBalance = coveredYieldBearingToken.cybBalanceOf(address(this));
         coveredYieldBearingToken.transfer(msg.sender, CYBBalance);
     }
@@ -69,16 +73,22 @@ contract Distributor is CoverDetailRecordedNFT {
      * @notice - Claims can be submitted via the distributor contract by returning the NFT.
      *           (this creates a claim assessment item for Nexus Claims Assessors who then vote on claims)
      **/
-    function claim() public returns (bool) {
-        redeemClaimWithFund();
+    function submitClaim(uint8 coverDetailRecordedNFTId, address userAddress, uint CYBAmount) public returns (bool) {
+        require (msg.sender > ownerOf(coverDetailRecordedNFTId), "Caller is not owner of this cover");
+
+        /// [Step1]: Redeem a NFT (that are proof of cover) with fund 
+        redeemClaimWithFund(userAddress, CYBAmount);
+
+        /// [Step2]: Burn a NFT that are proof of cover (This is equal to that NFT is returned)
+        _burn(uint256(coverDetailRecordedNFTId));
     }
 
 
     /***
      * @notice - Assuming the claim is paid the funds are transferred to the Distributor and can be redeemed by the end user.
      **/
-    function redeemClaimWithFund() internal returns (bool) {
-        uint fundedAmount;
+    function redeemClaimWithFund(address userAddress, uint CYBAmount) internal returns (bool) {
+        coveredYieldBearingToken.redeem(userAddress, CYBAmount);
     }
     
 

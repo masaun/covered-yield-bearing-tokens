@@ -13,84 +13,29 @@ import { ILendingPoolCore } from "./aave/interfaces/ILendingPoolCore.sol";
 import { ILendingPoolAddressesProvider } from "./aave/interfaces/ILendingPoolAddressesProvider.sol";
 import { IAToken } from"./aave/interfaces/IAToken.sol";
 
-/// Chainlink for solidity v0.5
-import { AggregatorV3Interface } from "./chainlink/AggregatorV3Interface.sol";
-
-import { ICoveredYieldBearingToken } from "./interfaces/ICoveredYieldBearingToken.sol";
-
 
 /***
  * @notice - This contract that ...
  **/
-contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, ERC20Mintable {
+contract CoveredYieldBearingToken is ERC20Detailed, ERC20Mintable {
     using SafeMath for uint;
 
-    /* contracts */    
     IERC20 dai;  // DAI stablecoin
-    IERC20 link; // chainlink coin
-    AggregatorV3Interface internal linkPriceFeed; // chainlink aggregator
-
     ILendingPool public lendingPool;
     ILendingPoolCore public lendingPoolCore;
     ILendingPoolAddressesProvider public lendingPoolAddressesProvider;
     IAToken public aDai;
-    
-    /* variables */
-    uint256 rate;           // interest rate
-    uint256 ratio;          // collateralization ratio
-    uint256 index;          // tracks interest owed by borrowers
-    uint256 linkPrice;      // last price of ETH
-    uint256 totalBorrow;    // total DAI borrowed
-    uint256 totalCollateral;// total LINK collateral
-    uint256 lastUpdated;    // time last updated
-    
-    /* constants */
-    // minimal interval to update interest earned
-    uint256 constant INTERVAL = 1 minutes;
-    // total intervals ignoring leap years
-    uint256 constant TOTAL_INTERVALS = 525600;  
-    
-    /* structures */
-    // tuple to represent borrow checkpoint
-    // this is used to calculate how much interest an account owes
-    struct Checkpoint {
-        uint256 balance;
-        uint256 index;
-    }
 
-    struct User {
-        // DAI amount borrowed
-        uint256 borrow;
-        // ETH collateral amount
-        uint256 collateral;
-        // stores last updated balance & index
-        Checkpoint checkpoint;
-    }
-    
-    /* mappings */    
-    // store users of this smart contract
-    mapping(address => User) users;
-
-    constructor(address _dai, address _link, address _linkPriceFeed, address _lendingPool, address _lendingPoolCore, address _lendingPoolAddressesProvider, address _aDai) 
+    constructor(address _dai, address _aDai, address _lendingPool, address _lendingPoolCore, address _lendingPoolAddressesProvider) 
         public 
         ERC20Detailed("Covered Yield Bearing Token", "CYB", 18) 
     {
-        dai = IERC20(_dai);    /// DAI
-        link = IERC20(_link);  /// LINK
-        linkPriceFeed = AggregatorV3Interface(_linkPriceFeed);  /// Chainlink PriceFeed (LINK/USD)
-        totalBorrow = 0;
-        totalCollateral = 0;
-        rate = 100000000000000000;      // 0.1
-        ratio = 15000000000000000000;   // 1.5
-
-        /// AAVE
+        dai = IERC20(_dai);      /// DAI
+        aDai = IAToken(_aDai);   /// aDAI
         lendingPool = ILendingPool(_lendingPool);
         lendingPoolCore = ILendingPoolCore(_lendingPoolCore);
         lendingPoolAddressesProvider = ILendingPoolAddressesProvider(_lendingPoolAddressesProvider);
-        aDai = IAToken(_aDai);
     }
-
-
 
 
     ///--------------------------------------------------------
@@ -101,7 +46,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
      * @notice - Creation of a new fully fungible token that is both yield bearing and covered
      * @notice - ipfsHash is a uploaded IPFS file that include a cover details
      **/
-    function createCoveredYieldBearingToken(address _reserve, uint256 _amount, uint16 _referralCode) public returns (bool) {
+    function createCoveredYieldBearingToken(address userAddress, address _reserve, uint256 _amount, uint16 _referralCode) public returns (bool) {
         /// Bearing yield with cDAI
         lendToCompound();
 
@@ -114,7 +59,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
 
         /// Transfer CYB (Covered Yield Bearing Token) into a user
         uint CYBBalance = cybBalance();
-        transfer(msg.sender, CYBBalance);
+        transfer(userAddress, CYBBalance);
     }
 
 
@@ -132,7 +77,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
      * @notice - Lend DAI into AAVE's lending pool (and recieve aDAI)
      **/
     function lendToAave(address _reserve, uint256 _amount, uint16 _referralCode) public returns (bool) {
-        /// Transfer from wallet address to this contract
+        /// Transfer from the Distributor contract to this contract
         dai.transferFrom(msg.sender, address(this), _amount);
 
         /// Approve LendingPool contract to transfer DAI into the LendingPool
@@ -175,18 +120,19 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
 
     // redeem pool tokens for DAI
     // @param CYB (Covered Yield Bearing Token) amonut
-    function redeem(uint256 CYBAmount) public {
-        require(cybBalanceOf(msg.sender) >= CYBAmount, "Not enough CYB (Covered Yield Bearing Token) amount balance");
-        require(aDaiBalance().sub(CYBAmount) >= aDaiBalance(), "Pool lacks liquidity");
-        
+    function redeem(address userAddress, uint256 CYBAmount) public {
+        /// CYB is transferred from the Distributor contract to this contract
+        transferFrom(msg.sender, address(this), CYBAmount);
+        require(cybBalanceOf(msg.sender) >= CYBAmount, "Not enough CYB (Covered Yield Bearing Token) balance");
+    
         /// Burn pool tokens (CYB == Covered Yield Bearing Token)
-        _burn(msg.sender, CYBAmount);
+        _burn(userAddress, CYBAmount);
 
         /// Redeem method call and receive DAI
         aDai.redeem(CYBAmount);
         
         /// Transfer DAI to sender
-        dai.transfer(msg.sender, daiBalance());
+        dai.transfer(userAddress, daiBalance());
     }
 
 
