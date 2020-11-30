@@ -174,13 +174,16 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         require(balanceOf(msg.sender) >= CYBAmount, "Not enough CYB (Covered Yield Bearing Token) amount balance");
         require(balance().sub(CYBAmount) >= aDaiBalance(), "Pool lacks liquidity");
 
-        /// calculate underlying value of pool tokens
+        /// Calculate underlying value (principle + interest) of pool tokens
         uint256 value = amount.mul(exchangeRate());
         
-        /// burn pool tokens
-        _burn(msg.sender, amount);
+        /// Burn pool tokens
+        _burn(msg.sender, CYBAmount);
+
+        /// redeem method call and receive DAI
+        aDai.redeem(CYBAmount);
         
-        /// transfer DAI to sender
+        /// Transfer DAI to sender
         dai.transfer(msg.sender, value);
     }
 
