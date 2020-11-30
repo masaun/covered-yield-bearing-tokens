@@ -36,5 +36,10 @@ module.exports = {
             ProposalCategory: [ '0x5e967d422C28e540619833e5B5E915048bC427cA' ],
             Governance: [ '0x15db425f2D085bd2aed7742b1B1b7a79fc7917Aa' ]
         },
+        "Aave": {  /// Aave Market contracts
+            "LendingPoolAddressesProvider": "0x506B0B2CF20FAA8f38a4E2B524EE43e1f4458Cc5",
+            "LendingPool": "0x580D4Fdc4BF8f9b5ae2fb9225D584fED4AD5375c", 
+            "LendingPoolCore": "0x95D1189Ed88B380E319dF73fF00E479fcc4CFa45"
+        },
     },
 }

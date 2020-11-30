@@ -6,6 +6,7 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { Pool1 } from "./nexus-mutual/modules/capital/Pool1.sol";
 import { Quotation } from "./nexus-mutual/modules/cover/Quotation.sol";
 
+import { CoveredYieldBearingToken } from "./CoveredYieldBearingToken.sol";
 import { CoverDetailRecordedNFT } from "./CoverDetailRecordedNFT.sol";
 
 
@@ -17,11 +18,17 @@ contract Distributor is CoverDetailRecordedNFT {
     IERC20 public dai;
     Pool1 public pool1;
     Quotation public quotation;
+    CoveredYieldBearingToken public coveredYieldBearingToken;
 
-    constructor(address _dai, address payable _pool1, address _quotation) public CoverDetailRecordedNFT() {
+    address DAI_ADDRESS;
+
+    constructor(address _dai, address payable _pool1, address _quotation, address _coveredYieldBearingToken) public CoverDetailRecordedNFT() {
         dai = IERC20(_dai);
         pool1 = Pool1(_pool1);
         quotation = Quotation(_quotation);
+        coveredYieldBearingToken = CoveredYieldBearingToken(_coveredYieldBearingToken);
+
+        DAI_ADDRESS = _dai;
     }
 
 
@@ -51,6 +58,10 @@ contract Distributor is CoverDetailRecordedNFT {
         uint8 newCoverDetailRecordedNFTId = mintCoverDetailRecordedNFT(msg.sender, coverDetail);
         //CoverDetailRecordedNFT coverDetailRecordedNFT = new CoverDetailRecordedNFT();
 
+        /// [Step4]: Generate CYB (covered yield bearing token) and transfer them into a user
+        coveredYieldBearingToken.createCoveredYieldBearingToken(DAI_ADDRESS, daiAmount, 0);
+        uint CYBBalance = coveredYieldBearingToken.cybBalanceOf(address(this));
+        coveredYieldBearingToken.transfer(msg.sender, CYBBalance);
     }
 
 

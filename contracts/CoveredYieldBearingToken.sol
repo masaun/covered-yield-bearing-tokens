@@ -26,11 +26,10 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     using SafeMath for uint;
 
     /* contracts */    
-    IERC20 tusd; // tusd stablecoin
+    IERC20 dai;  // DAI stablecoin
     IERC20 link; // chainlink coin
     AggregatorV3Interface internal linkPriceFeed; // chainlink aggregator
 
-    IERC20 dai;
     ILendingPool public lendingPool;
     ILendingPoolCore public lendingPoolCore;
     ILendingPoolAddressesProvider public lendingPoolAddressesProvider;
@@ -41,7 +40,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     uint256 ratio;          // collateralization ratio
     uint256 index;          // tracks interest owed by borrowers
     uint256 linkPrice;      // last price of ETH
-    uint256 totalBorrow;    // total TUSD borrowed
+    uint256 totalBorrow;    // total DAI borrowed
     uint256 totalCollateral;// total LINK collateral
     uint256 lastUpdated;    // time last updated
     
@@ -60,7 +59,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     }
 
     struct User {
-        // TUSD amount borrowed
+        // DAI amount borrowed
         uint256 borrow;
         // ETH collateral amount
         uint256 collateral;
@@ -72,11 +71,11 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     // store users of this smart contract
     mapping(address => User) users;
 
-    constructor(address _dai, address _tusd, address _link, address _linkPriceFeed, address _lendingPool, address _lendingPoolCore, address _lendingPoolAddressesProvider, address _aDai) 
+    constructor(address _dai, address _link, address _linkPriceFeed, address _lendingPool, address _lendingPoolCore, address _lendingPoolAddressesProvider, address _aDai) 
         public 
         ERC20Detailed("Covered Yield Bearing Token", "CYB", 18) 
     {
-        tusd = IERC20(_tusd);  /// tUSD
+        dai = IERC20(_dai);    /// DAI
         link = IERC20(_link);  /// LINK
         linkPriceFeed = AggregatorV3Interface(_linkPriceFeed);  /// Chainlink PriceFeed (LINK/USD)
         totalBorrow = 0;
@@ -85,7 +84,6 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         ratio = 15000000000000000000;   // 1.5
 
         /// AAVE
-        dai = IERC20(_dai);
         lendingPool = ILendingPool(_lendingPool);
         lendingPoolCore = ILendingPoolCore(_lendingPoolCore);
         lendingPoolAddressesProvider = ILendingPoolAddressesProvider(_lendingPoolAddressesProvider);
@@ -96,7 +94,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
 
 
     ///--------------------------------------------------------
-    /// Previous methos
+    /// Main method
     ///--------------------------------------------------------
 
     /***
@@ -109,8 +107,20 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
 
         /// Bearing yield with aDAI        
         lendToAave(_reserve, _amount, _referralCode);
+
+        /// Mint CYB (Covered Yield Bearing Token)
+        uint aDAIBalance = aDaiBalance();
+        mint(aDAIBalance);   
+
+        /// Transfer CYB (Covered Yield Bearing Token) into a user
+        uint CYBBalance = cybBalance();
+        transfer(msg.sender, CYBBalance);
     }
 
+
+    ///--------------------------------------------------------
+    /// Lending pool related method
+    ///--------------------------------------------------------
 
     /***
      * @notice - Lend DAI into compound (and recieve cDAI)
@@ -119,170 +129,65 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     
 
     /***
-     * @notice - Lend DAI into AAVE (and recieve aDAI)
+     * @notice - Lend DAI into AAVE's lending pool (and recieve aDAI)
      **/
     function lendToAave(address _reserve, uint256 _amount, uint16 _referralCode) public returns (bool) {
-        /// Transfer from wallet address
+        /// Transfer from wallet address to this contract
         dai.transferFrom(msg.sender, address(this), _amount);
 
-        /// Approve LendingPool contract to move your DAI
+        /// Approve LendingPool contract to transfer DAI into the LendingPool
         dai.approve(lendingPoolAddressesProvider.getLendingPoolCore(), _amount);
 
-        /// Deposit DAI
+        /// Deposit DAI (after that, this contract receive aDAI from lendingPool)
         lendingPool.deposit(_reserve, _amount, _referralCode);
     }
-
-
-
 
 
     ///--------------------------------------------------------
     /// Interest bearing token with AAVE
     ///--------------------------------------------------------
 
-    // get TUSD balance of this contract
-    function balance() public view returns (uint256) {
-        return tusd.balanceOf(address(this));
+    // get DAI balance of this contract
+    function daiBalance() public view returns (uint256) {
+        return dai.balanceOf(address(this));
     }
 
-    // get price of interest bearing token
-    function exchangeRate() public view returns (uint256) {
-        // exchange rate = (TUSD balance + total borrowed) / supply
-        totalBorrow.add(balance()).div(totalSupply());
+    // get aDAI balance of this contract
+    function aDaiBalance() public view returns (uint256) {
+        return aDai.balanceOf(address(this));
     }
 
-    // mint interest bearing TUSD
-    // @param amount TUSD amount
-    function mint(uint256 amount) public {
-        require(tusd.transferFrom(msg.sender, address(this), amount), "insufficient TUSD");
-        uint256 value = amount.div(exchangeRate());
-        // amount of tokens based on total interest earned by pool
-        _mint(msg.sender, value);
+    // get CYB (Covered Yield Bearing Token) balance of this contract
+    function cybBalance() public view returns (uint256) {
+        return balanceOf(address(this));
     }
 
-    // redeem pool tokens for TUSD
-    // @param amount zToken amonut
-    function redeem(uint256 amount) public {
-        require(balanceOf(msg.sender) >= amount, "not enough balance");
-        require(balance().sub(amount) >= totalBorrow, "pool lacks liquidity");
-        // calculate underlying value of pool tokens
-        uint256 value = amount.mul(exchangeRate());
-        // burn pool tokens
-        _burn(msg.sender, amount);
-        // transfer TUSD to sender
-        tusd.transfer(msg.sender, value);
+    // get CYB (Covered Yield Bearing Token) balance of a specified wallet address
+    function cybBalanceOf(address walletAddress) public view returns (uint256) {
+        return balanceOf(walletAddress);
     }
 
-    // deposit LINK to use as collateral to borrow
-    function deposit(uint256 amount) public {
-        require(link.transferFrom(msg.sender, address(this), amount), "insufficient LINK");
-        User storage user = users[msg.sender];
-        user.collateral.add(amount);
-        totalCollateral.add(amount);
+    // mint the covered yield bearing token (CYB)
+    // @param amount aDAI amount
+    function mint(uint256 aDAIAmount) public {
+        _mint(address(this), aDAIAmount);
     }
 
-    // withdraw LINK used as collateral
-    // could cause user to be undercollateralized
-    function withdraw(uint256 amount) public {
-        User storage user = users[msg.sender];
-        require(user.collateral >= amount, "insufficient collateral");
-        totalCollateral.sub(amount);
-        user.collateral.sub(amount);
+    // redeem pool tokens for DAI
+    // @param CYB (Covered Yield Bearing Token) amonut
+    function redeem(uint256 CYBAmount) public {
+        require(cybBalanceOf(msg.sender) >= CYBAmount, "Not enough CYB (Covered Yield Bearing Token) amount balance");
+        require(aDaiBalance().sub(CYBAmount) >= aDaiBalance(), "Pool lacks liquidity");
+        
+        /// Burn pool tokens (CYB == Covered Yield Bearing Token)
+        _burn(msg.sender, CYBAmount);
+
+        /// Redeem method call and receive DAI
+        aDai.redeem(CYBAmount);
+        
+        /// Transfer DAI to sender
+        dai.transfer(msg.sender, daiBalance());
     }
-
-    // borrow TUSD using LINK as collateral
-    function borrow(uint256 amount) public {
-        User storage user = users[msg.sender];
-        require(amount >= balance(), "not enough liquidity to borrow");
-        require(calculateRatio(user.borrow.add(amount), user.collateral) > ratio, "too much borrow");
-        _updateAccount(msg.sender);
-    }
-
-    // repay TUSD debt
-    function repay(uint256 amount) public {
-        User storage user = users[msg.sender];
-        require(user.borrow <= amount, "cannot repay more than borrowed");
-        require(tusd.transferFrom(msg.sender, address(this), amount), "insufficient TUSD to repay");
-        user.borrow = user.borrow.sub(amount);
-        _updateAccount(msg.sender);
-    }
-
-    function _debt(address account) internal view returns (uint256) {
-        User storage user = users[account];
-    }
-
-    // public view to see amount owed
-    function debt(address account) public view returns (uint256) {
-        User storage user = users[msg.sender];
-        return _debt(account);
-    }
-
-    function _updateAccount(address account) internal {
-        // TODO
-    }
-
-    // update oracle prices and total interest earned
-    function update() public {
-        // only update if at least one interval has passed
-        if (lastUpdated.add(INTERVAL) <= block.timestamp) {
-            // calculate time passed
-            uint256 passed = block.timestamp.sub(lastUpdated);
-            // calculate intervals passed since last update
-            uint256 time = passed.div(INTERVAL);
-
-            // calculate period interest = 1 + r * t
-            uint256 period = rate.mul(
-                time.div(TOTAL_INTERVALS)
-                .mul(rate)
-                .add(1)
-            );
-            // update to current timestamp
-            lastUpdated = block.timestamp;
-
-            // update index
-            index = index.mul(period);
-
-            // update total borrow
-            totalBorrow = totalBorrow.mul(period);
-
-            updatePrice();
-        }
-    }
-
-    // liquidate account ETH if below threshold
-    function liquidate(address account, uint256 amount) public {
-        update();
-        User memory user = users[account];
-        require(user.borrow !=0, "account has not borrowed");
-        require(calculateRatio(user.borrow, user.collateral) < ratio, "account not undercollateralized");
-        require(amount <= user.collateral, "amount too high to liquidate");
-    }
-
-    // fetch eth price from chainlink
-    function fetchlinkPrice() public view returns (int256) {
-        (
-            uint80 roundID, 
-            int price,
-            uint startedAt,
-            uint timeStamp,
-            uint80 answeredInRound
-        ) = linkPriceFeed.latestRoundData();
-        // If the round is not complete yet, timestamp is 0
-        require(timeStamp > 0, "Round not complete");
-        return price;
-    }
-
-    function updatePrice() public {
-        // cast to uint256 * add 10 decimals of precision
-        linkPrice = uint256(fetchlinkPrice()).mul(10**10);
-    }
-
-    // calculate collateralization ratio
-    function calculateRatio(uint256 borrow, uint256 collateral) public returns (uint256) {
-        return borrow.div(collateral.mul(linkPrice));
-    }
-
-
 
 
 
