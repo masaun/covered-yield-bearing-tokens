@@ -25,69 +25,21 @@ import { ICoveredYieldBearingToken } from "./interfaces/ICoveredYieldBearingToke
 contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, ERC20Mintable {
     using SafeMath for uint;
 
-    /* contracts */    
     IERC20 dai;  // DAI stablecoin
-    IERC20 link; // chainlink coin
-    AggregatorV3Interface internal linkPriceFeed; // chainlink aggregator
-
     ILendingPool public lendingPool;
     ILendingPoolCore public lendingPoolCore;
     ILendingPoolAddressesProvider public lendingPoolAddressesProvider;
     IAToken public aDai;
-    
-    /* variables */
-    uint256 rate;           // interest rate
-    uint256 ratio;          // collateralization ratio
-    uint256 index;          // tracks interest owed by borrowers
-    uint256 linkPrice;      // last price of ETH
-    uint256 totalBorrow;    // total DAI borrowed
-    uint256 totalCollateral;// total LINK collateral
-    uint256 lastUpdated;    // time last updated
-    
-    /* constants */
-    // minimal interval to update interest earned
-    uint256 constant INTERVAL = 1 minutes;
-    // total intervals ignoring leap years
-    uint256 constant TOTAL_INTERVALS = 525600;  
-    
-    /* structures */
-    // tuple to represent borrow checkpoint
-    // this is used to calculate how much interest an account owes
-    struct Checkpoint {
-        uint256 balance;
-        uint256 index;
-    }
 
-    struct User {
-        // DAI amount borrowed
-        uint256 borrow;
-        // ETH collateral amount
-        uint256 collateral;
-        // stores last updated balance & index
-        Checkpoint checkpoint;
-    }
-    
-    /* mappings */    
-    // store users of this smart contract
-    mapping(address => User) users;
-
-    constructor(address _dai, address _link, address _linkPriceFeed, address _lendingPool, address _lendingPoolCore, address _lendingPoolAddressesProvider, address _aDai) 
+    constructor(address _dai, address _lendingPool, address _lendingPoolCore, address _lendingPoolAddressesProvider, address _aDai) 
         public 
         ERC20Detailed("Covered Yield Bearing Token", "CYB", 18) 
     {
-        dai = IERC20(_dai);    /// DAI
-        link = IERC20(_link);  /// LINK
-        linkPriceFeed = AggregatorV3Interface(_linkPriceFeed);  /// Chainlink PriceFeed (LINK/USD)
-        totalBorrow = 0;
-        totalCollateral = 0;
-        rate = 100000000000000000;      // 0.1
-        ratio = 15000000000000000000;   // 1.5
-
-        /// AAVE
+        dai = IERC20(_dai);      /// DAI
+        aDai = IAToken(_aDai);   /// aDAI
         lendingPool = ILendingPool(_lendingPool);
         lendingPoolCore = ILendingPoolCore(_lendingPoolCore);
         lendingPoolAddressesProvider = ILendingPoolAddressesProvider(_lendingPoolAddressesProvider);
-        aDai = IAToken(_aDai);
     }
 
 
