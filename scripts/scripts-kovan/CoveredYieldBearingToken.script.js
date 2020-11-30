@@ -25,13 +25,24 @@ coveredYieldBearingToken = new web3.eth.Contract(coveredYieldBearingTokenABI, co
  * @notice - Execute all methods
  **/
 async function main() {
+    await lendToAave();
     await createCoveredYieldBearingToken();
 }
 main();
 
+/*** 
+ * @dev - Lend to Aave
+ **/
+async function lendToAave() {
+    const _reserve = tokenAddressList["Kovan"]["Aave"]["DAIaave"];
+    const _amount = web3.utils.toWei('10', 'ether');  /// 10 DAI
+    const _referralCode = 0;
+    let inputData1 = await coveredYieldBearingToken.methods.lendToAave(_reserve, _amount, _referralCode).encodeABI();
+    let transaction1 = await sendTransaction(walletAddress1, privateKey1, coveredYieldBearingTokenAddr, inputData1);
+}
 
 /*** 
- * @dev - Send createCoveredYieldBearingToken()
+ * @dev - Create CoveredYieldBearingToken
  **/
 async function createCoveredYieldBearingToken() {
     const userAddress = walletAddress1;
