@@ -37,7 +37,8 @@ contract Distributor is CoverDetailRecordedNFT {
 
     /***
      * @notice - Distributor contracts take input from an end user
-     *         - a distributor contracts purchase cover on Nexus => return an NFT to the user representing the cover details.
+     *         - a distributor contracts purchase cover on Nexus => return an NFT to the user representing the cover details.  
+     * @notice - Creation of a new fully fungible token that is both yield bearing and covered
      * @notice - "coverDetail" is IPFSHash 
      **/
     function purchaseCover(
