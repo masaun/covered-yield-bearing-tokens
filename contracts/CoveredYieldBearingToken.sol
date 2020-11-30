@@ -48,7 +48,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
      * @notice - Creation of a new fully fungible token that is both yield bearing and covered
      * @notice - ipfsHash is a uploaded IPFS file that include a cover details
      **/
-    function createCoveredYieldBearingToken(address _reserve, uint256 _amount, uint16 _referralCode) public returns (bool) {
+    function createCoveredYieldBearingToken(address userAddress, address _reserve, uint256 _amount, uint16 _referralCode) public returns (bool) {
         /// Bearing yield with cDAI
         lendToCompound();
 
@@ -61,7 +61,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
 
         /// Transfer CYB (Covered Yield Bearing Token) into a user
         uint CYBBalance = cybBalance();
-        transfer(msg.sender, CYBBalance);
+        transfer(userAddress, CYBBalance);
     }
 
 
@@ -79,7 +79,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
      * @notice - Lend DAI into AAVE's lending pool (and recieve aDAI)
      **/
     function lendToAave(address _reserve, uint256 _amount, uint16 _referralCode) public returns (bool) {
-        /// Transfer from wallet address to this contract
+        /// Transfer from the Distributor contract to this contract
         dai.transferFrom(msg.sender, address(this), _amount);
 
         /// Approve LendingPool contract to transfer DAI into the LendingPool
@@ -123,9 +123,10 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     // redeem pool tokens for DAI
     // @param CYB (Covered Yield Bearing Token) amonut
     function redeem(address userAddress, uint256 CYBAmount) public {
-        require(cybBalanceOf(msg.sender) >= CYBAmount, "Not enough CYB (Covered Yield Bearing Token) amount balance");
-        require(aDaiBalance().sub(CYBAmount) >= aDaiBalance(), "Pool lacks liquidity");
-        
+        /// CYB is transferred from the Distributor contract to this contract
+        transferFrom(msg.sender, address(this), CYBAmount);
+        require(cybBalanceOf(msg.sender) >= CYBAmount, "Not enough CYB (Covered Yield Bearing Token) balance");
+    
         /// Burn pool tokens (CYB == Covered Yield Bearing Token)
         _burn(userAddress, CYBAmount);
 

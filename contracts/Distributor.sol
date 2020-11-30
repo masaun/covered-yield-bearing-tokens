@@ -62,7 +62,7 @@ contract Distributor is CoverDetailRecordedNFT {
         //CoverDetailRecordedNFT coverDetailRecordedNFT = new CoverDetailRecordedNFT();
 
         /// [Step4]: Generate CYB (covered yield bearing token) and transfer them into a user
-        coveredYieldBearingToken.createCoveredYieldBearingToken(DAI_ADDRESS, daiAmount, 0);
+        coveredYieldBearingToken.createCoveredYieldBearingToken(msg.sender, DAI_ADDRESS, daiAmount, 0);
         uint CYBBalance = coveredYieldBearingToken.cybBalanceOf(address(this));
         coveredYieldBearingToken.transfer(msg.sender, CYBBalance);
     }
