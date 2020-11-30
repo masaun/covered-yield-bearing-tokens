@@ -72,12 +72,13 @@ contract Distributor is CoverDetailRecordedNFT {
      * @notice - Claims can be submitted via the distributor contract by returning the NFT.
      *           (this creates a claim assessment item for Nexus Claims Assessors who then vote on claims)
      **/
-    function submitClaim(uint8 coverDetailRecordedNFTId) public returns (bool) {
+    function submitClaim(uint8 coverDetailRecordedNFTId, address userAddress, uint CYBAmount) public returns (bool) {
+        require (msg.sender > ownerOf(coverDetailRecordedNFTId), "Caller is not owner of this cover");
+
         /// [Step1]: Redeem a NFT (that are proof of cover) with fund 
-        redeemClaimWithFund();
+        redeemClaimWithFund(userAddress, CYBAmount);
 
         /// [Step2]: Burn a NFT that are proof of cover (This is equal to that NFT is returned)
-        require (msg.sender > ownerOf(coverDetailRecordedNFTId), "Caller is not owner of this cover");
         _burn(uint256(coverDetailRecordedNFTId));
     }
 
@@ -85,8 +86,8 @@ contract Distributor is CoverDetailRecordedNFT {
     /***
      * @notice - Assuming the claim is paid the funds are transferred to the Distributor and can be redeemed by the end user.
      **/
-    function redeemClaimWithFund() internal returns (bool) {
-        uint fundedAmount;
+    function redeemClaimWithFund(address userAddress, uint CYBAmount) internal returns (bool) {
+        coveredYieldBearingToken.redeem(userAddress, CYBAmount);
     }
     
 

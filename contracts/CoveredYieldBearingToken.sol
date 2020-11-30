@@ -40,8 +40,6 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     }
 
 
-
-
     ///--------------------------------------------------------
     /// Main method
     ///--------------------------------------------------------
@@ -124,18 +122,18 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
 
     // redeem pool tokens for DAI
     // @param CYB (Covered Yield Bearing Token) amonut
-    function redeem(uint256 CYBAmount) public {
+    function redeem(address userAddress, uint256 CYBAmount) public {
         require(cybBalanceOf(msg.sender) >= CYBAmount, "Not enough CYB (Covered Yield Bearing Token) amount balance");
         require(aDaiBalance().sub(CYBAmount) >= aDaiBalance(), "Pool lacks liquidity");
         
         /// Burn pool tokens (CYB == Covered Yield Bearing Token)
-        _burn(msg.sender, CYBAmount);
+        _burn(userAddress, CYBAmount);
 
         /// Redeem method call and receive DAI
         aDai.redeem(CYBAmount);
         
         /// Transfer DAI to sender
-        dai.transfer(msg.sender, daiBalance());
+        dai.transfer(userAddress, daiBalance());
     }
 
 
