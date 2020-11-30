@@ -113,7 +113,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         mint(aDAIBalance);   
 
         /// Transfer CYB (Covered Yield Bearing Token) into a user
-        uint CYBBalance = CybBalance();
+        uint CYBBalance = cybBalance();
         transfer(msg.sender, CYBBalance);
     }
 
@@ -158,12 +158,12 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     }
 
     // get CYB (Covered Yield Bearing Token) balance of this contract
-    function CybBalance() public view returns (uint256) {
+    function cybBalance() public view returns (uint256) {
         return balanceOf(address(this));
     }
 
     // get CYB (Covered Yield Bearing Token) balance of a specified wallet address
-    function CybBalanceOf(address walletAddress) public view returns (uint256) {
+    function cybBalanceOf(address walletAddress) public view returns (uint256) {
         return balanceOf(walletAddress);
     }
 
@@ -176,7 +176,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     // redeem pool tokens for DAI
     // @param CYB (Covered Yield Bearing Token) amonut
     function redeem(uint256 CYBAmount) public {
-        require(CybBalanceOf(msg.sender) >= CYBAmount, "Not enough CYB (Covered Yield Bearing Token) amount balance");
+        require(cybBalanceOf(msg.sender) >= CYBAmount, "Not enough CYB (Covered Yield Bearing Token) amount balance");
         require(aDaiBalance().sub(CYBAmount) >= aDaiBalance(), "Pool lacks liquidity");
         
         /// Burn pool tokens (CYB == Covered Yield Bearing Token)
