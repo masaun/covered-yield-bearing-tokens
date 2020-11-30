@@ -26,7 +26,7 @@ contract CoveredYieldBearingToken is ERC20Detailed, ERC20Mintable {
     ILendingPoolAddressesProvider public lendingPoolAddressesProvider;
     IAToken public aDai;
 
-    constructor(address _dai, address _lendingPool, address _lendingPoolCore, address _lendingPoolAddressesProvider, address _aDai) 
+    constructor(address _dai, address _aDai, address _lendingPool, address _lendingPoolCore, address _lendingPoolAddressesProvider) 
         public 
         ERC20Detailed("Covered Yield Bearing Token", "CYB", 18) 
     {

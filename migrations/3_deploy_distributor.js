@@ -6,9 +6,9 @@ var contractAddressList = require('./addressesList/contractAddress/contractAddre
 var tokenAddressList = require('./addressesList/tokenAddress/tokenAddress.js');
 var walletAddressList = require('./addressesList/walletAddress/walletAddress.js');
 
-const _dai = tokenAddress["Kovan"]["AAVE"]["DAIaave"];
-const _pool1 = contractAddressList["Kovan"]["Pool1"][0];
-const _quotation = contractAddressList["Kovan"]["Quotation"][0];
+const _dai = tokenAddressList["Kovan"]["Aave"]["DAIaave"];
+const _pool1 = contractAddressList["Kovan"]["NexusMutual"]["Pool1"][0];
+const _quotation = contractAddressList["Kovan"]["NexusMutual"]["Quotation"][0];
 const _coveredYieldBearingToken = CoveredYieldBearingToken.address;
 
 module.exports = async function (deployer) {
