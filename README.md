@@ -2,7 +2,7 @@
 
 ***
 ## 【Introduction of Covered Yield Bearing Token】
-- This is a solidity smart contract that allows a user to ...
+- This is a smart contract for creating the `covered yield bearing token (CYB)` which a fully fungible token that is `both yield bearing and covered` .
 
 &nbsp;
 
