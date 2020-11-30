@@ -148,7 +148,7 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     ///--------------------------------------------------------
 
     // get DAI balance of this contract
-    function balance() public view returns (uint256) {
+    function daiBalance() public view returns (uint256) {
         return dai.balanceOf(address(this));
     }
 
@@ -162,6 +162,11 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
         return balanceOf(address(this));
     }
 
+    // get CYB (Covered Yield Bearing Token) balance of a specified wallet address
+    function CybBalanceOf(address walletAddress) public view returns (uint256) {
+        return balanceOf(walletAddress);
+    }
+
     // mint the covered yield bearing token (CYB)
     // @param amount aDAI amount
     function mint(uint256 aDAIAmount) public {
@@ -171,20 +176,17 @@ contract CoveredYieldBearingToken is ICoveredYieldBearingToken, ERC20Detailed, E
     // redeem pool tokens for DAI
     // @param CYB (Covered Yield Bearing Token) amonut
     function redeem(uint256 CYBAmount) public {
-        require(balanceOf(msg.sender) >= CYBAmount, "Not enough CYB (Covered Yield Bearing Token) amount balance");
-        require(balance().sub(CYBAmount) >= aDaiBalance(), "Pool lacks liquidity");
-
-        /// Calculate underlying value (principle + interest) of pool tokens
-        uint256 value = amount.mul(exchangeRate());
+        require(CybBalanceOf(msg.sender) >= CYBAmount, "Not enough CYB (Covered Yield Bearing Token) amount balance");
+        require(aDaiBalance().sub(CYBAmount) >= aDaiBalance(), "Pool lacks liquidity");
         
-        /// Burn pool tokens
+        /// Burn pool tokens (CYB == Covered Yield Bearing Token)
         _burn(msg.sender, CYBAmount);
 
-        /// redeem method call and receive DAI
+        /// Redeem method call and receive DAI
         aDai.redeem(CYBAmount);
         
         /// Transfer DAI to sender
-        dai.transfer(msg.sender, value);
+        dai.transfer(msg.sender, daiBalance());
     }
 
 
