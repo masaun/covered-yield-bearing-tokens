@@ -27,7 +27,6 @@ IERC20 = require("../../build/contracts/IERC20.json");
 daiABI = IERC20.abi;
 daiAddr = tokenAddressList["Kovan"]["Aave"]["DAIaave"];    /// Deployed address on Kovan
 dai = new web3.eth.Contract(daiABI, daiAddr);
-console.log('=== daiAddr ===', daiAddr);
 
 
 /***
@@ -74,8 +73,12 @@ async function mint() {
 async function createCoveredYieldBearingToken() {
     const userAddress = walletAddress1;
     const _reserve = tokenAddressList["Kovan"]["Aave"]["DAIaave"];
-    const _amount = web3.utils.toWei('10', 'ether');  /// 10 DAI
+    const _amount = web3.utils.toWei('9', 'ether');  /// 10 DAI
     const _referralCode = 0;
+
+    /// Check CYB balance
+    let CYBBalance = await coveredYieldBearingToken.methods.cybBalance().call();
+    console.log('\n=== CYBBalance ===\n', CYBBalance);  /// [Result]: 30000000000000000000
 
     /// Approve
     let inputData1 = await dai.methods.approve(coveredYieldBearingTokenAddr, _amount).encodeABI();
