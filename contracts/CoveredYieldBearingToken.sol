@@ -61,9 +61,9 @@ contract CoveredYieldBearingToken is ERC20Detailed, ERC20Mintable {
         mint(aDAIBalance);   
 
         /// Transfer CYB (Covered Yield Bearing Token) into a user
-        uint CYBBalance = cybBalance();
+        //uint CYBBalance = cybBalance();
         //transfer(userAddress, CYBBalance);
-        aDai.transfer(userAddress, CYBBalance); /// [Note]: Test
+        aDai.transfer(userAddress, aDAIBalance); /// [Note]: This is a test
     }
 
 
