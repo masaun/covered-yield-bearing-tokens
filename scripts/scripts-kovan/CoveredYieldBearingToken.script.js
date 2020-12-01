@@ -35,6 +35,7 @@ console.log('=== daiAddr ===', daiAddr);
  **/
 async function main() {
     await lendToAave();
+    await mint();
     await createCoveredYieldBearingToken();
 }
 main();
@@ -51,13 +52,20 @@ async function lendToAave() {
     let inputData1 = await dai.methods.approve(coveredYieldBearingTokenAddr, _amount).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, daiAddr, inputData1);
 
-
-    let inputData = await dai.methods.transfer(walletAddress2, _amount).encodeABI();
-    let transaction = await sendTransaction(walletAddress1, privateKey1, daiAddr, inputData);
-
     /// Execution
     let inputData2 = await coveredYieldBearingToken.methods.lendToAave(_reserve, _amount, _referralCode).encodeABI();
     let transaction2 = await sendTransaction(walletAddress1, privateKey1, coveredYieldBearingTokenAddr, inputData2);
+}
+
+/*** 
+ * @dev - Mint CYB
+ **/
+async function mint() {
+    const _aDAIAmount = web3.utils.toWei('10', 'ether');  /// 10 DAI
+
+    /// Execution
+    let inputData = await coveredYieldBearingToken.methods.mint(_aDAIAmount).encodeABI();
+    let transaction = await sendTransaction(walletAddress1, privateKey1, coveredYieldBearingTokenAddr, inputData);
 }
 
 /*** 
