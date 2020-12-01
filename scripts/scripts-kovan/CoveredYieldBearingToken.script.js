@@ -9,6 +9,8 @@ const web3 = new Web3(provider);
 const walletAddress1 = process.env.WALLET_ADDRESS_1;
 const privateKey1 = process.env.PRIVATE_KEY_1;
 
+const walletAddress2 = process.env.WALLET_ADDRESS_2;
+
 /* Import contract addresses */
 let contractAddressList = require('../addressesList/contractAddress/contractAddress.js');
 let tokenAddressList = require('../addressesList/tokenAddress/tokenAddress.js');
@@ -25,7 +27,7 @@ IERC20 = require("../../build/contracts/IERC20.json");
 daiABI = IERC20.abi;
 daiAddr = tokenAddressList["Kovan"]["Aave"]["DAIaave"];    /// Deployed address on Kovan
 dai = new web3.eth.Contract(daiABI, daiAddr);
-
+console.log('=== daiAddr ===', daiAddr);
 
 
 /***
@@ -48,6 +50,10 @@ async function lendToAave() {
     /// Approve
     let inputData1 = await dai.methods.approve(coveredYieldBearingTokenAddr, _amount).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, daiAddr, inputData1);
+
+
+    let inputData = await dai.methods.transfer(walletAddress2, _amount).encodeABI();
+    let transaction = await sendTransaction(walletAddress1, privateKey1, daiAddr, inputData);
 
     /// Execution
     let inputData2 = await coveredYieldBearingToken.methods.lendToAave(_reserve, _amount, _referralCode).encodeABI();
@@ -88,7 +94,7 @@ async function sendTransaction(walletAddress, privateKey, contractAddress, input
             nonce:    web3.utils.toHex(txCount),
             from:     walletAddress,
             to:       contractAddress,  /// Contract address which will be executed
-            value:    web3.utils.toHex(web3.utils.toWei('0.01', 'ether')),  /// [Note]: 0.01 ETH as a msg.value
+            value:    web3.utils.toHex(web3.utils.toWei('0', 'ether')),  /// [Note]: 0 ETH as a msg.value
             gasLimit: web3.utils.toHex(2100000),
             gasPrice: web3.utils.toHex(web3.utils.toWei('100', 'gwei')),   /// [Note]: Gas Price is 100 Gwei 
             data: inputData  
