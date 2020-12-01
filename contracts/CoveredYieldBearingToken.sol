@@ -49,7 +49,7 @@ contract CoveredYieldBearingToken is ERC20Detailed, ERC20Mintable {
     function createCoveredYieldBearingToken(address userAddress, address _reserve, uint256 _amount, uint16 _referralCode) public returns (bool) {
         /// Transfer from the Distributor contract to this contract
         dai.transferFrom(msg.sender, address(this), _amount);
-        
+
         /// Bearing yield with cDAI
         lendToCompound();
 
@@ -62,7 +62,8 @@ contract CoveredYieldBearingToken is ERC20Detailed, ERC20Mintable {
 
         /// Transfer CYB (Covered Yield Bearing Token) into a user
         uint CYBBalance = cybBalance();
-        transfer(userAddress, CYBBalance);
+        //transfer(userAddress, CYBBalance);
+        aDai.transfer(userAddress, CYBBalance); /// [Note]: Test
     }
 
 
