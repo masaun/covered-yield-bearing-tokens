@@ -47,6 +47,10 @@ async function lendToAave() {
     const _amount = web3.utils.toWei('10', 'ether');  /// 10 DAI
     const _referralCode = 0;
 
+    /// In advance, it transfer DAI into the CoveredYieldBearingToken contract
+    let inputData0 = await dai.methods.transfer(coveredYieldBearingTokenAddr, _amount).encodeABI();
+    let transaction0 = await sendTransaction(walletAddress1, privateKey1, daiAddr, inputData0);
+
     /// Approve
     let inputData1 = await dai.methods.approve(coveredYieldBearingTokenAddr, _amount).encodeABI();
     let transaction1 = await sendTransaction(walletAddress1, privateKey1, daiAddr, inputData1);

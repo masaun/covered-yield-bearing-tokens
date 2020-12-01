@@ -47,10 +47,13 @@ contract CoveredYieldBearingToken is ERC20Detailed, ERC20Mintable {
      * @notice - ipfsHash is a uploaded IPFS file that include a cover details
      **/
     function createCoveredYieldBearingToken(address userAddress, address _reserve, uint256 _amount, uint16 _referralCode) public returns (bool) {
+        /// Transfer from the Distributor contract to this contract
+        dai.transferFrom(msg.sender, address(this), _amount);
+        
         /// Bearing yield with cDAI
         lendToCompound();
 
-        /// Bearing yield with aDAI        
+        /// Bearing yield with aDAI
         lendToAave(_reserve, _amount, _referralCode);
 
         /// Mint CYB (Covered Yield Bearing Token)
@@ -77,9 +80,6 @@ contract CoveredYieldBearingToken is ERC20Detailed, ERC20Mintable {
      * @notice - Lend DAI into AAVE's lending pool (and recieve aDAI)
      **/
     function lendToAave(address _reserve, uint256 _amount, uint16 _referralCode) public returns (bool) {
-        /// Transfer from the Distributor contract to this contract
-        dai.transferFrom(msg.sender, address(this), _amount);
-
         /// Approve LendingPool contract to transfer DAI into the LendingPool
         dai.approve(lendingPoolAddressesProvider.getLendingPoolCore(), _amount);
 
