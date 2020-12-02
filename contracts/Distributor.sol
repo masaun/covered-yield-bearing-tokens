@@ -21,6 +21,7 @@ contract Distributor is CoverDetailNFT {
     CoveredYieldBearingToken public coveredYieldBearingToken;
 
     address DAI_ADDRESS;
+    address COVERED_YIELD_BEARING_TOKEN;
 
     constructor(address _dai, address payable _pool1, address _quotation, address _coveredYieldBearingToken) 
         public 
@@ -32,6 +33,7 @@ contract Distributor is CoverDetailNFT {
         coveredYieldBearingToken = CoveredYieldBearingToken(_coveredYieldBearingToken);
 
         DAI_ADDRESS = _dai;
+        COVERED_YIELD_BEARING_TOKEN = _coveredYieldBearingToken;
     }
 
 
@@ -63,8 +65,10 @@ contract Distributor is CoverDetailNFT {
         //CoverDetailRecordedNFT coverDetailRecordedNFT = new CoverDetailRecordedNFT();
 
         /// [Step4]: Generate CYB (covered yield bearing token) and transfer them into a user
-        coveredYieldBearingToken.createCoveredYieldBearingToken(msg.sender, DAI_ADDRESS, daiAmount, 0);
+        dai.transfer(COVERED_YIELD_BEARING_TOKEN, daiAmount);  /// Transfer from this contract to CYB token's contract
+        coveredYieldBearingToken.createCoveredYieldBearingToken(address(this), msg.sender, DAI_ADDRESS, daiAmount, 0);
         uint CYBBalance = coveredYieldBearingToken.cybBalanceOf(address(this));
+        coveredYieldBearingToken.transferFrom(COVERED_YIELD_BEARING_TOKEN, address(this), CYBBalance);
         coveredYieldBearingToken.transfer(msg.sender, CYBBalance);
     }
 
