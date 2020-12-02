@@ -2,7 +2,6 @@ pragma solidity ^0.5.0;
 pragma experimental ABIEncoderV2;
 
 /// [Note]: @openzeppelin/contracts v2.5.1
-import { ERC20 } from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import { ERC20Detailed } from "@openzeppelin/contracts/token/ERC20/ERC20Detailed.sol";
 import { ERC20Mintable } from "@openzeppelin/contracts/token/ERC20/ERC20Mintable.sol";
 import { IERC20 } from '@openzeppelin/contracts/token/ERC20/IERC20.sol';
@@ -18,7 +17,7 @@ import { IAToken } from"./aave/interfaces/IAToken.sol";
 /***
  * @notice - This contract that ...
  **/
-contract CoveredYieldBearingToken is ERC20, ERC20Detailed, ERC20Mintable {
+contract CoveredYieldBearingToken is ERC20Detailed, ERC20Mintable {
     using SafeMath for uint;
 
     IERC20 dai;  // DAI stablecoin
@@ -29,7 +28,6 @@ contract CoveredYieldBearingToken is ERC20, ERC20Detailed, ERC20Mintable {
 
     constructor(address _dai, address _aDai, address _lendingPool, address _lendingPoolCore, address _lendingPoolAddressesProvider) 
         public 
-        ERC20()
         ERC20Detailed("Covered Yield Bearing Token", "CYB", 18) 
         ERC20Mintable()
     {
@@ -64,7 +62,8 @@ contract CoveredYieldBearingToken is ERC20, ERC20Detailed, ERC20Mintable {
         mint(aDAIBalance);   
 
         /// Transfer CYB (Covered Yield Bearing Token) into a user
-        uint CYBBalance = cybBalance();
+        //uint CYBBalance = cybBalance();
+        uint CYBBalance = 0;  /// [Test]: 0
         transfer(userAddress, CYBBalance);
         //approve(userAddress, CYBBalance);
         //transferFrom(address(this), userAddress, CYBBalance);
