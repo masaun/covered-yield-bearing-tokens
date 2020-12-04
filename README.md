@@ -23,11 +23,18 @@ $ npm run migrate:kovan
 
 <br>
 
-### ③ Execute script (it's instead of testing)
+### ③ Execute script (it's instead of testing) on Kovan testnet
+- Testing for CoveredYieldBearingToken.sol
 ```
-$ npm run script:kovan
+$ npm run script:cyb
 ```
 
+&nbsp;
+
+- Testing for Distributor.sol
+```
+$ npm run script:distributor
+```
 
 &nbsp;
 
