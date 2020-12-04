@@ -50,7 +50,7 @@ async function purchaseCover() {
     const daiAmount = web3.utils.toWei('10', 'ether');  /// 10 DAI
     const coverDetail = "QmWWQSuPMS6aXCbZKpEjPHPUZN2NjB3YrhJTHsV4X3vb2t";  /// [Note]: This is ipfsHash that a cover detail is recorded
     const smartCAdd = "0x61460874a7196d6a22d1ee4922473664b3e95270";        /// [Note]: This is the target contract address of cover (e.g. COMP of compound on kovan)
-    const coverCurr = web3.utils.toHex(tokenAddressList["Kovan"]["General"]["DAI"]);      /// [Note]: This is token address that pay for a cover (e.g. DAI)
+    const coverCurr = web3.utils.soliditySha3({ type: 'bytes', value: tokenAddressList["Kovan"]["General"]["DAI"] });      /// [Note]: This is token address that pay for a cover (e.g. DAI)
     const coverDetails = [];
     const coverPeriod = [];
     const _v = "";
