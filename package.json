@@ -13,7 +13,9 @@
     "compile:kovan": "truffle compile --reset --network kovan",
     "migrate:kovan": "truffle migrate --reset --network kovan",
     "test:kovan": "truffle test ./test/test-kovan/* --network kovan",
-    "script:kovan": "node ./scripts/scripts-kovan/CoveredYieldBearingToken.script.js --network kovan",
+    "script:kovan": "node ./scripts/scripts-kovan/* --network kovan",
+    "script:cyb": "node ./scripts/scripts-kovan/CoveredYieldBearingToken.script.js --network kovan",
+    "script:distributor": "node ./scripts/scripts-kovan/Distributor.script.js --network kovan",
     "start-blank": "rm -rf client/src && cp -rf barebones/src client/"
   },
   "author": "masaun",
