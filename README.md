@@ -48,6 +48,7 @@ $ npm run script:distributor
   - Nexus Mutual Smart Contracts index: https://nxm.surge.sh/ 
   - Stats: https://nexustracker.io/ 
   - Wrapped NXM (wNXM): https://etherscan.io/address/0x0d438f3b5175bebc262bf23753c1e53d03432bde#code
+  - GR8 Bounty: https://gitcoin.co/issue/NexusMutual/smart-contracts/47/100024185
   - Deployed contract address
     - Deployed contract information
       https://nexusmutual.gitbook.io/docs/docs#deployed-contract-information
